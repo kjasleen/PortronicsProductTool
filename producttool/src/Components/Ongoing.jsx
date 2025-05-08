@@ -1,25 +1,6 @@
-import React from "react";
+import React from 'react';
 
-const products = [
-  { id: 1, name: "Product A", color: "bg-blue-200" },
-  { id: 2, name: "Product B", color: "bg-green-200" },
-  { id: 3, name: "Product C", color: "bg-pink-200" },
-  { id: 4, name: "Product D", color: "bg-yellow-200" },
-  { id: 5, name: "Product E", color: "bg-purple-200" },
-  { id: 1, name: "Product A", color: "bg-blue-200" },
-  { id: 2, name: "Product B", color: "bg-green-200" },
-  { id: 3, name: "Product C", color: "bg-pink-200" },
-  { id: 4, name: "Product D", color: "bg-yellow-200" },
-  { id: 5, name: "Product E", color: "bg-purple-200" },
-  { id: 1, name: "Product A", color: "bg-blue-200" },
-  { id: 2, name: "Product B", color: "bg-green-200" },
-  { id: 3, name: "Product C", color: "bg-pink-200" },
-  { id: 4, name: "Product D", color: "bg-yellow-200" },
-  { id: 5, name: "Product E", color: "bg-purple-200" },
-  // Add as many as needed
-];
-
-const OngoingProducts = () => {
+const OngoingProducts = ({ products }) => {
   const handleClick = (product) => {
     alert(`Clicked on ${product.name}`);
   };
@@ -28,7 +9,7 @@ const OngoingProducts = () => {
     <div className="p-6">
       <h2 className="text-3xl font-bold text-gray-900 mb-6 text-left">Ongoing</h2>
 
-      {/* Check if there are products */}
+      {/* If there are no products */}
       {products.length === 0 ? (
         <p className="!text-2xl text-gray-500">No Ongoing Products</p>
       ) : (
@@ -49,5 +30,6 @@ const OngoingProducts = () => {
     </div>
   );
 };
+
 
 export default OngoingProducts;

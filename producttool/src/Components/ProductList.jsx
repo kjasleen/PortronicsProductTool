@@ -1,15 +1,15 @@
 import React from 'react';
 
-const CompletedProducts = ({ products }) => {
+const ProductList = ({ products, title, noProductsMessage }) => {
   const handleClick = (product) => {
     alert(`Clicked on ${product.name}`);
   };
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-left">Completed Products</h2>
+      <h2 className="text-3xl font-bold text-gray-900 mb-6 text-left">{title}</h2>
       {products.length === 0 ? (
-        <p className="!text-2xl text-gray-500">No Completed Products</p>
+        <p className="!text-2xl text-gray-500">{noProductsMessage}</p>
       ) : (
         <div className="flex space-x-6 overflow-x-auto pb-4">
           {products.map((product) => (
@@ -27,4 +27,4 @@ const CompletedProducts = ({ products }) => {
   );
 };
 
-export default CompletedProducts;
+export default ProductList;
