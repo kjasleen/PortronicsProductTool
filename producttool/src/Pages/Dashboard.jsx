@@ -1,50 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductList from '../Components/ProductList';
+import AddProductModal from '../Components/AddProductModal'; // Import the modal
+import HttpService from '../Utils/HttpService';
+
 
 function Dashboard() {
   const [ongoingProducts, setOngoingProducts] = useState([]);
   const [completedProducts, setCompletedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false); // Modal state
+
+
+
+  const fetchProducts = async () => {
+
+    let data = await HttpService.get('http://localhost:5000/api/products/');
+    console.log("Products in Response", data);
+    const products = Array.isArray(data) ? data : [];
+    const ongoing = products.filter(product => product.status === 'Ongoing');
+    const completed = products.filter(product => product.status === 'Completed');
+    setOngoingProducts(ongoing);
+    setCompletedProducts(completed);
+    setLoading(false);
+
+    /*try {
+
+      const token = localStorage.getItem('token');
+      const res = await axios.get('http://localhost:5000/api/products/', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log("Products in Response", data);
+      /*const products = Array.isArray(res.data) ? res.data : [];
+      const ongoing = products.filter(product => product.status === 'Ongoing');
+      const completed = products.filter(product => product.status === 'Completed');
+
+      if(products.length > 0)
+      console.log("first Products- ", products[0]);
+
+      setOngoingProducts(ongoing);
+      setCompletedProducts(completed);
+      setLoading(false);
+    } catch (err) {
+
+      if (err.response && err.response.status === 401) {
+        const message = err.response.data?.message || '';
+        if (message.toLowerCase().includes('expired')) {
+          alert("Session expired. Please log in again.");
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        } else {
+          setError("You are not authorized to view this resource.");
+        }
+      }
+      setLoading(false);
+    }*/
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get('/api/products');
-        console.log('Response:', res.data);  // Log to inspect the response
-    
-        // Ensure res.data is an array (even if it's empty)
-        const products = Array.isArray(res.data) ? res.data : [];  // Default to an empty array if not an array
-    
-        // Separate products into ongoing and completed
-        const ongoing = products.filter(product => product.status === 'Ongoing');
-        const completed = products.filter(product => product.status === 'Completed');
-    
-        setOngoingProducts(ongoing);
-        setCompletedProducts(completed);
-        setLoading(false);
-    
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setError('Failed to load products. Please try again.');
-        setLoading(false);
-      }
-    };
-    
     fetchProducts();
   }, []);
 
-  const handleNavigate = () => {
-    // This function can be used to navigate to the product creation page
+  const handleProductAdded = () => {
+    fetchProducts(); // Refresh product list after adding a product
   };
 
   if (loading) {
-    return <div>Loading...</div>;  // Show loading state while data is being fetched
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;  // Show error message if there’s a problem
+    return <div>{error}</div>;
   }
 
   return (
@@ -53,28 +82,33 @@ function Dashboard() {
         Products
       </h1>
 
-      {/* Button to navigate to the page for adding new products */}
+      {/* Add Product Button */}
       <div className="flex justify-end mb-4">
         <button
-          onClick={handleNavigate}
+          onClick={() => setShowModal(true)}
           className="bg-blue-600 text-black !text-2xl px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition"
         >
           + Add Product
         </button>
       </div>
 
-      {/* Display Ongoing Products */}
+      {/* Product Lists */}
       <ProductList
         products={ongoingProducts}
         title="Ongoing Products"
         noProductsMessage="No Ongoing Products"
       />
-
-      {/* Display Completed Products */}
       <ProductList
         products={completedProducts}
         title="Completed Products"
         noProductsMessage="No Completed Products"
+      />
+
+      {/* Modal */}
+      <AddProductModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onProductAdded={handleProductAdded}
       />
     </div>
   );

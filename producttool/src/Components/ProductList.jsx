@@ -1,8 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductList = ({ products, title, noProductsMessage }) => {
+  const navigate = useNavigate();
+
   const handleClick = (product) => {
-    alert(`Clicked on ${product.name}`);
+    
+    navigate(`/products/${product._id}`); // Navigate to ProductPhases page
   };
 
   return (

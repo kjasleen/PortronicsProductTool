@@ -1,15 +1,20 @@
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../Utils/Cloudinary');
+const path = require('path'); 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'PortronicsTaskDocs',
+    resource_type: 'raw', // important for non-image files
+    public_id: (req, file) => {
+      const originalName = path.parse(file.originalname).name;
+      return `${Date.now()}-${originalName}`;
+    }
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage:storage });
 
 module.exports = upload;

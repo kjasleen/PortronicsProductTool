@@ -3,6 +3,7 @@ import Header from './Pages/Header';
 import Dashboard from './Pages/Dashboard';
 import ProductPage from './Components/NewProduct';
 import Login from './Pages/Login';
+import ProductPhases from './Pages/ProductPhases'; // ✅ Import added
 import { useState, useEffect } from 'react';
 import PrivateRoute from './Components/PrivateRoute';
 
@@ -23,7 +24,7 @@ function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    window.location.href = '/login'; // or use navigate if preferred
+    window.location.href = '/login';
   };
 
   return (
@@ -54,6 +55,14 @@ function App() {
           element={
             <PrivateRoute>
               <ProductPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/products/:id"
+          element={
+            <PrivateRoute>
+              <ProductPhases />
             </PrivateRoute>
           }
         />

@@ -23,7 +23,7 @@ const UploadDocument = ({ onUpload }) => {
       />
       <button
         onClick={handleUpload}
-        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+        className="bg-blue-500 hover:bg-blue-600 text-black px-3 py-1 rounded"
       >
         Upload
       </button>

@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../Middleware/authMiddleware');
-const allowRoles = require('../Middleware/roleMiddleware');
+const { authMiddleware, allowRoles } = require('../Middleware/authMiddleware');
 const {
   createProduct,
   deleteProduct,
@@ -9,8 +8,8 @@ const {
 } = require('../Controllers/productController');
 
 // Only Admins can create or delete
-router.post('/', authMiddleware, allowRoles(['Admin']), createProduct);
-router.delete('/:id', authMiddleware, allowRoles(['Admin']), deleteProduct);
+router.post('/create', authMiddleware, allowRoles(['Admin']), createProduct);
+router.delete('/delete:id', authMiddleware, allowRoles(['Admin']), deleteProduct);
 
 // All users can view
 router.get('/', authMiddleware, getAllProducts);

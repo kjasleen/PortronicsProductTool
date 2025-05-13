@@ -13,9 +13,6 @@ const taskSchema = new mongoose.Schema({
   needsApproval: { type: Boolean, default: false },
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
-  needsApproval: { type: Boolean, default: false },
-  approved: { type: Boolean, default: false },
-  documentUrl: { type: String },
 });
 
 module.exports = mongoose.model('Task', taskSchema);
