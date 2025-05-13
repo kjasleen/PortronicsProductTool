@@ -22,15 +22,39 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
     setExpanded(!expanded);
   };
 
+  const handleDeletePhase = async () => {
+    const confirmed = window.confirm(`Delete phase "${phase.name}"?`);
+    if (!confirmed) return;
+
+    try {
+      await HttpService.delete(`http://localhost:5000/api/phases/${phase._id}`);
+      onRefresh(); // Refresh the phase list
+    } catch (err) {
+      console.error('Error deleting phase:', err);
+      alert('Failed to delete phase');
+    }
+  };
+
   return (
     <div className="mb-4 border border-gray-300 rounded">
       <div
         className="p-4 cursor-pointer bg-gray-100 hover:bg-gray-200"
         onClick={toggleExpanded}
       >
-        <h3 className="text-lg font-semibold">{phase.name}</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">{phase.name}</h3>
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // prevent collapsing when clicking delete
+              handleDeletePhase();
+            }}
+            className="text-red-600 text-sm hover:underline"
+          >
+            Delete
+          </button>
+        </div>
       </div>
-
+  
       {expanded && (
         <div className="p-4 bg-white border-t border-gray-300 transition-all duration-300 ease-in-out">
           <TaskList
@@ -44,6 +68,7 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
       )}
     </div>
   );
+  
 };
 
 export default PhaseCard;

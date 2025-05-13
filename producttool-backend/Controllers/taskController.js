@@ -47,6 +47,22 @@ exports.createTask = async (req, res) => {
   }
 };
 
+exports.deleteTask = async(req, res) =>{
+
+  try
+  {
+    const { taskId } = req.params;
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+    if (!deletedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    res.status(200).json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 
 // Update task status
 exports.updateTaskStatus = async (req, res) => {
@@ -133,6 +149,7 @@ exports.approveTask = async (req, res) => {
     res.status(500).json({ message: 'Failed to approve task', error: err.message });
   }
 };
+
 exports.getTasksByPhase = async (req, res) => {
   const { phaseId } = req.params;
 

@@ -1,22 +1,3 @@
-/*const express = require('express');
-const router = express.Router();
-const upload = require('../Middleware/upload');
-const taskController = require('../Controllers/taskController');
-const { authMiddleware, allowRoles } = require('../Middleware/authMiddleware');
-
-router.post(
-  '/:taskId/upload',
-  authMiddleware,
-  allowRoles(['Finance', 'Admin']),
-  upload.single('document'),
-  taskController.uploadTaskDocument
-);
-
-router.get('/phase/:phaseId', authMiddleware, taskController.getTasksByPhase);
-router.post('/create', authMiddleware, allowRoles(['Admin']),upload.single('document'),taskController.createTask);
-router.patch('/update/:taskId/status', authMiddleware, allowRoles(['Admin']), taskController.updateTaskStatus);
-router.post('/:taskId/ask-approval', authMiddleware, allowRoles(['Finance', 'Vendor']), taskController.askForApproval);
-router.post('/:taskId/approve', authMiddleware, allowRoles(['Admin']), taskController.approveTask);*/
 const express = require('express');
 const router = express.Router();
 const upload = require('../Middleware/upload');  // Ensure this is set up correctly
@@ -24,6 +5,13 @@ const taskController = require('../Controllers/taskController');
 const { authMiddleware, allowRoles } = require('../Middleware/authMiddleware');
 const handleMulterErrors = require('../Middleware/multerErrorHandler');
 
+// Route for deleting a task (restricted to Admin)
+router.delete(
+  '/:taskId',
+  authMiddleware,
+  allowRoles(['Admin']),
+  taskController.deleteTask
+);
 
 // Route for uploading task document (restricted to Finance and Admin roles)
 router.post(

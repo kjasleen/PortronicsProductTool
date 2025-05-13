@@ -9,7 +9,7 @@ const {
 
 // Only Admin can add/remove phase
 router.post('/create', authMiddleware, allowRoles(['Admin']), createPhase);
-router.delete('/delete/:id', authMiddleware, allowRoles(['Admin']), deletePhase);
+router.delete('/:id', authMiddleware, allowRoles(['Admin']), deletePhase);
 
 // Anyone logged in can view phases of a product
 router.get('/:productId', authMiddleware, getPhasesByProduct);

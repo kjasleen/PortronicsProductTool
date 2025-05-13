@@ -9,7 +9,7 @@ const {
 
 // Only Admins can create or delete
 router.post('/create', authMiddleware, allowRoles(['Admin']), createProduct);
-router.delete('/delete:id', authMiddleware, allowRoles(['Admin']), deleteProduct);
+router.delete('/:id', authMiddleware, allowRoles(['Admin']), deleteProduct);
 
 // All users can view
 router.get('/', authMiddleware, getAllProducts);
