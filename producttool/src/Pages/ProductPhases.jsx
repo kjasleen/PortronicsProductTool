@@ -8,23 +8,37 @@ const ProductPhases = () => {
   const { id } = useParams();
   const [phases, setPhases] = useState([]);
   const [newPhase, setNewPhase] = useState('');
-  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [taskToEdit, setTaskToEdit] = useState(null); // for edit
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPhaseId, setCurrentPhaseId] = useState(null);
-  const [taskRefetchFn, setTaskRefetchFn] = useState(null);
+  const [taskRefetchFn, setTaskRefetchFn] = useState(() => () => {});
+
+  const handleEditTask = (task, phaseId, refetchTasks) => {
+    setTaskToEdit(task);
+    setCurrentPhaseId(phaseId);
+    setTaskRefetchFn(() => refetchTasks); // wrap in function
+    setIsModalOpen(true);
+  };
+  
+  const handleNewTask = (phaseId, refetchTasks) => {
+    setTaskToEdit(null);
+    setCurrentPhaseId(phaseId);
+    setTaskRefetchFn(() => refetchTasks); // wrap in function
+    setIsModalOpen(true);
+  };
+  
 
   const fetchPhases = async () => {
     const data = await HttpService.get(`http://localhost:5000/api/phases/${id}`);
     setPhases(data);
   };
 
-  useEffect(() => {
-    fetchPhases();
-  }, [id]);
+  useEffect(() => { fetchPhases(); }, [id]);
 
   const handleAddPhase = async () => {
-    if (!newPhase.trim()) {
-      alert("Please enter the name for the phase!");
+    if(newPhase.length ==0)
+    {
+      alert("Please enter the name for the phase !");
       return;
     }
 
@@ -33,32 +47,33 @@ const ProductPhases = () => {
     fetchPhases();
   };
 
-  const handleEditTask = (task, phaseId, refetchTasks) => {
+  /*const handleEditTask = (task, phaseId) => {
     setTaskToEdit(task);
     setCurrentPhaseId(phaseId);
-    setTaskRefetchFn(() => refetchTasks);
     setIsModalOpen(true);
   };
 
-  const handleNewTask = (phaseId, refetchTasks) => {
+  const handleNewTask = (phaseId) => {
     setTaskToEdit(null);
     setCurrentPhaseId(phaseId);
-    setTaskRefetchFn(() => refetchTasks);
     setIsModalOpen(true);
-  };
+  };*/
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Phases for Product ID: {id}</h2>
+      <h2 className="text-2xl font-bold mb-4 !text-blue-900">Phases for Product ID: {id}</h2>
 
       <div className="mb-6 flex gap-2">
         <input
           value={newPhase}
           onChange={e => setNewPhase(e.target.value)}
           placeholder="New Phase"
-          className="border p-2"
+          className="border !border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:!ring-blue-400"
         />
-        <button onClick={handleAddPhase} className="bg-blue-600 text-black px-4 py-2 rounded">
+        <button
+          onClick={handleAddPhase}
+          className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition"
+        >
           + Add Phase
         </button>
       </div>

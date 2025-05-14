@@ -16,9 +16,7 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
   };
 
   const toggleExpanded = async () => {
-    if (!expanded) {
-      await fetchTasks();
-    }
+    if (!expanded) await fetchTasks();
     setExpanded(!expanded);
   };
 
@@ -28,7 +26,7 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
 
     try {
       await HttpService.delete(`http://localhost:5000/api/phases/${phase._id}`);
-      onRefresh(); // Refresh the phase list
+      onRefresh();
     } catch (err) {
       console.error('Error deleting phase:', err);
       alert('Failed to delete phase');
@@ -36,27 +34,27 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
   };
 
   return (
-    <div className="mb-4 border border-gray-300 rounded">
+    <div className="mb-4 border border-blue-200 rounded-lg shadow-sm">
       <div
-        className="p-4 cursor-pointer bg-gray-100 hover:bg-gray-200"
+        className="p-4 cursor-pointer bg-blue-50 hover:!bg-blue-100 transition-colors duration-200 rounded-t-lg"
         onClick={toggleExpanded}
       >
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">{phase.name}</h3>
+          <h3 className="text-lg font-semibold !text-blue-800">{phase.name}</h3>
           <button
             onClick={(e) => {
-              e.stopPropagation(); // prevent collapsing when clicking delete
+              e.stopPropagation();
               handleDeletePhase();
             }}
-            className="text-red-600 text-sm hover:underline"
+            className="!text-red-500 text-sm hover:underline"
           >
             Delete
           </button>
         </div>
       </div>
-  
+
       {expanded && (
-        <div className="p-4 bg-white border-t border-gray-300 transition-all duration-300 ease-in-out">
+        <div className="p-4 !bg-white border-t !border-blue-200 transition-all duration-300 ease-in-out">
           <TaskList
             tasks={tasks}
             phaseId={phase._id}
@@ -68,7 +66,7 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
       )}
     </div>
   );
-  
 };
+
 
 export default PhaseCard;

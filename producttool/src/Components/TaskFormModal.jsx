@@ -8,17 +8,12 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
   const [approvalRequested, setApprovalRequested] = useState(false);
   const [createdAt, setCreatedAt] = useState('');
   const [documentUrl, setDocumentUrl] = useState('');
-
-  // Get user role directly from localStorage
-  const user = JSON.parse(localStorage.getItem('user'));
-  console.log("USerRole in TaskFormModal - ", user);
-  const userRole = user?.role || 'Guest';
   const [selectedFile, setSelectedFile] = useState(null);
 
- 
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userRole = user?.role || 'Guest';
 
   useEffect(() => {
-    console.log("TaskFormModel - Task param", task);
     if (task) {
       setName(task.name || '');
       setEstimatedCompletionDate(task.estimatedCompletionDate ? task.estimatedCompletionDate.substring(0, 16) : '');
@@ -36,13 +31,10 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
     formData.append('estimatedCompletionDate', estimatedCompletionDate);
     formData.append('needsApproval', needsApproval);
     formData.append('approvalRequested', approvalRequested);
-    if (selectedFile) 
-      formData.append('document', selectedFile);
+    if (selectedFile) formData.append('document', selectedFile);
 
     try {
       if (task) {
-        console.log("Saving task:", formData); // Log payload
-
         await HttpService.putFile(`http://localhost:5000/api/tasks/${task._id}`, formData);
       } else {
         await HttpService.postFile(`http://localhost:5000/api/tasks/create`, formData);
@@ -57,10 +49,8 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
   const handleApprovalAction = () => {
     if (userRole === 'Admin') {
       setApprovalRequested(false);
-      // Optional: show confirmation
     } else {
       setApprovalRequested(true);
-      // Optional: show "Approval Requested"
     }
   };
 
@@ -72,11 +62,11 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
       alert("File must be less than 5MB");
     }
   };
-  
+
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)]  flex justify-center items-center z-50">
-     <div className="bg-white p-8 rounded-lg w-[30rem] shadow-2xl text-lg">
-     <h3 className="text-2xl font-bold mb-6">{task ? 'Edit Task' : 'Add Task'}</h3>
+    <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex justify-center items-center z-50">
+      <div className="bg-white p-8 rounded-lg w-[30rem] shadow-2xl text-lg">
+        <h3 className="text-2xl font-bold mb-6">{task ? 'Edit Task' : 'Add Task'}</h3>
 
         <input
           value={name}
@@ -95,12 +85,12 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
           />
         </label>
 
-        <label className="block mb-2">
-          <input
+        <label className="block mb-2 flex items-center gap-2">
+          <input 
             type="checkbox"
             checked={needsApproval}
             onChange={(e) => setNeedsApproval(e.target.checked)}
-            className="mr-2"
+            className="border border-blue-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           Requires Approval
         </label>
@@ -110,14 +100,14 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
             {userRole === 'Admin' && approvalRequested ? (
               <button
                 onClick={handleApprovalAction}
-                className="bg-green-500 text-white px-3 py-1 rounded"
+                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
               >
                 Approve
               </button>
             ) : userRole !== 'Admin' && !approvalRequested ? (
               <button
                 onClick={handleApprovalAction}
-                className="bg-yellow-500 text-black px-3 py-1 rounded"
+                className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600 transition"
               >
                 Request Approval
               </button>
@@ -146,7 +136,6 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
                 <p className="text-sm text-gray-600 mt-2">Selected file: {selectedFile.name}</p>
               )}
             </div>
-
           </div>
         )}
 
@@ -170,10 +159,16 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
         )}
 
         <div className="flex justify-end space-x-2">
-          <button onClick={handleSave} className="bbg-gray-300 px-4 py-2 rounded">
+          <button
+            onClick={handleSave}
+            className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition mt-4"
+          >
             Save
           </button>
-          <button onClick={onClose} className="bg-gray-300 px-4 py-2 rounded">
+          <button
+            onClick={onClose}
+            className="!bg-red-600 !text-white px-4 py-2 rounded hover:!bg-red-700 transition mt-4"
+          >
             Cancel
           </button>
         </div>

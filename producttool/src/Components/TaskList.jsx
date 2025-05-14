@@ -27,29 +27,32 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
       {/* New Task Button */}
       <button
         onClick={() => onNewTask && onNewTask(phaseId)}
-        className="bg-blue-500 text-black px-3 py-1 rounded mt-4"
+        className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition"
       >
         + New Task
       </button>
 
       {/* Task List */}
-      <div className="mt-4">
+      <div className="mt-4 space-y-3">
         {tasks.length === 0 ? (
-          <p>No Tasks added yet</p>
+          <p className="!text-blue-500">No Tasks added yet</p>
         ) : (
           tasks.map((task) => (
-            <div key={task._id} className="border p-2 mb-2 rounded">
-              <p className="font-semibold">{task.name}</p>
-              <div className="flex gap-2 mt-2">
+            <div
+              key={task._id}
+              className="border border-blue-200 bg-blue-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <p className="font-semibold text-blue-800">{task.name}</p>
+              <div className="flex gap-3 mt-3">
                 <button
                   onClick={() => handleEdit(task)}
-                  className="bg-yellow-500 text-black px-2 py-1 rounded"
+                  className="!bg-yellow-400 !text-black px-3 py-1 rounded hover:!bg-yellow-500 transition"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(task._id)}
-                  className="bg-red-500 text-black px-2 py-1 rounded"
+                  className="!bg-red-500 !text-white px-3 py-1 rounded hover:!bg-red-600 transition"
                 >
                   Delete
                 </button>
