@@ -61,11 +61,6 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
     }
   };
 
-  const handleMarkAsComplete = () => {
-    setCompleted(true);
-    setStatus('Completed');
-  };
-
   const handleApprovalToggle = () => {
     if (!approvalRequested) {
       setApprovalRequested(true);
@@ -122,9 +117,9 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
               approved
                 ? '!bg-gray-400 cursor-not-allowed'
                 : !approvalRequested
-                ? '!bg-blue-500 hover:bg-blue-600'
+                ? '!bg-blue-400 hover:bg-blue-500'
                 : userRole === 'Admin'
-                ? '!bg-green-500 hover:bg-green-600'
+                ? '!bg-green-400 hover:bg-green-500'
                 : '!bg-gray-400 cursor-not-allowed'
             }`}
           >
@@ -165,10 +160,10 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
           </div>
         )}
 
-        <div className="text-sm mb-4">
+        <div className="text-md mb-4">
           Status:{' '}
           <span
-            className={`px-2 py-1 rounded !text-white ${
+            className={`px-2 py-2 rounded !text-white ${
               status === 'Ongoing'
                 ? '!bg-yellow-500'
                 : status === 'Approval Pending'
@@ -184,27 +179,17 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
           </span>
         </div>
 
-        <div className="flex justify-between items-center mt-6">
-          <button
-            onClick={handleMarkAsComplete}
-            disabled={approvalRequested && !approved}
-            className={`px-4 py-2 rounded transition text-white ${
-              approvalRequested && !approved
-                ? '!bg-gray-400 cursor-not-allowed'
-                : '!bg-purple-600 hover:bg-purple-700'
-            }`}
-          >
-            Mark as Completed
-          </button>
+        <div className="flex justify-end items-center mt-6 space-x-2">
+        
           <button
             onClick={handleSave}
-            className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition"
+            className="!bg-blue-400 !text-white px-4 py-2 rounded hover:!bg-blue-500 transition"
           >
             Save
           </button>
           <button
             onClick={onClose}
-            className="!bg-red-600 !text-white px-4 py-2 rounded hover:!bg-red-700 transition"
+            className="!bg-blue-400 !text-white px-4 py-2 rounded hover:!bg-blue-500 transition"
           >
             Cancel
           </button>

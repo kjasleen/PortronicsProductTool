@@ -2,8 +2,10 @@ import React from 'react';
 import HttpService from '../Utils/HttpService';
 
 const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userRole = user?.role || 'Guest';
+
   const handleEdit = (task) => {
-    console.log("Task Status - ", task.status);
     if (typeof onTaskEdit === 'function') {
       onTaskEdit(task);
     } else {
@@ -20,6 +22,19 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
       } catch (err) {
         console.error('Error deleting task:', err);
       }
+    }
+  };
+
+  const handleMarkAsComplete = async (task) => {
+    try {
+      await HttpService.put(`http://localhost:5000/api/tasks/${task._id}`, {
+        ...task,
+        completed: true,
+        status: 'Completed'
+      });
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      console.error('Error marking task as completed:', err);
     }
   };
 
@@ -45,13 +60,13 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
             >
               {/* Header Row: Task Name and Status */}
               <div className="flex justify-between items-center">
-              <p className="text-lg font-semibold text-blue-800">{task.name}</p>
-
+                <p className="text-lg font-semibold text-blue-800">{task.name}</p>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-bold !text-white
                     ${task.status === 'Ongoing' ? 'bg-yellow-500' :
                       task.status === 'Approval Pending' ? 'bg-orange-500' :
                       task.status === 'Approved' ? 'bg-green-600' :
+                      task.status === 'Completed' ? 'bg-blue-600' :
                       'bg-gray-400'}`}
                 >
                   {task.status}
@@ -59,10 +74,10 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 mt-3">
+              <div className="flex gap-3 mt-3 flex-wrap">
                 <button
                   onClick={() => handleEdit(task)}
-                 className="!bg-teal-400 !text-white px-4 py-2 rounded hover:!bg-teal-500 transition"
+                  className="!bg-teal-400 !text-white px-4 py-2 rounded hover:!bg-teal-500 transition"
                 >
                   Edit
                 </button>
@@ -71,6 +86,17 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
                   className="!bg-teal-400 !text-white px-4 py-2 rounded hover:!bg-teal-500 transition"
                 >
                   Delete
+                </button>
+                <button
+                  onClick={() => handleMarkAsComplete(task)}
+                  disabled={task.completed || (task.approvalRequested && !task.approved)}
+                  className={`px-4 py-2 rounded text-white transition
+                    ${task.completed || (task.approvalRequested && !task.approved)
+                      ? '!bg-gray-400 cursor-not-allowed'
+                      : '!bg-purple-400 hover:!bg-purple-500'
+                    }`}
+                >
+                  {task.completed ? 'Completed' : 'Mark as Completed'}
                 </button>
               </div>
             </div>
