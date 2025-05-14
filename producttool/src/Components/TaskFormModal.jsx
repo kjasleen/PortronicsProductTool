@@ -4,11 +4,13 @@ import HttpService from '../Utils/HttpService';
 const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
   const [name, setName] = useState('');
   const [estimatedCompletionDate, setEstimatedCompletionDate] = useState('');
-  const [needsApproval, setNeedsApproval] = useState(false);
   const [approvalRequested, setApprovalRequested] = useState(false);
+  const [status, setStatus] = useState('Ongoing');
+  const [approved, setApproved] = useState(false);
   const [createdAt, setCreatedAt] = useState('');
   const [documentUrl, setDocumentUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [completed, setCompleted] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userRole = user?.role || 'Guest';
@@ -17,20 +19,33 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
     if (task) {
       setName(task.name || '');
       setEstimatedCompletionDate(task.estimatedCompletionDate ? task.estimatedCompletionDate.substring(0, 16) : '');
-      setNeedsApproval(task.needsApproval || false);
       setApprovalRequested(task.approvalRequested || false);
+      setStatus(task.status || 'Ongoing');
+      setApproved(task.approved || false);
       setCreatedAt(task.createdAt || '');
       setDocumentUrl(task.documentUrl || '');
+      setCompleted(task.completed || false);
     }
   }, [task]);
 
   const handleSave = async () => {
+   /* let derivedStatus = 'Ongoing';
+    if (approvalRequested && approved) {
+      derivedStatus = 'Approved';
+    } else if (approvalRequested) {
+      derivedStatus = 'Approval Pending';
+    } else if (completed) {
+      derivedStatus = 'Completed';
+    }*/
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('phaseId', phaseId);
     formData.append('estimatedCompletionDate', estimatedCompletionDate);
-    formData.append('needsApproval', needsApproval);
     formData.append('approvalRequested', approvalRequested);
+    formData.append('approved', approved);
+    formData.append('completed', completed);
+    formData.append('status', status);
     if (selectedFile) formData.append('document', selectedFile);
 
     try {
@@ -46,11 +61,18 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
     }
   };
 
-  const handleApprovalAction = () => {
-    if (userRole === 'Admin') {
-      setApprovalRequested(false);
-    } else {
+  const handleMarkAsComplete = () => {
+    setCompleted(true);
+    setStatus('Completed');
+  };
+
+  const handleApprovalToggle = () => {
+    if (!approvalRequested) {
       setApprovalRequested(true);
+      setStatus('Approval Pending');
+    } else if (approvalRequested && userRole === 'Admin') {
+      setApproved(true);
+      setStatus('Approved');
     }
   };
 
@@ -59,14 +81,21 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
     if (file && file.size <= 5 * 1024 * 1024) {
       setSelectedFile(file);
     } else {
-      alert("File must be less than 5MB");
+      alert('File must be less than 5MB');
     }
   };
 
   return (
     <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex justify-center items-center z-50">
       <div className="bg-white p-8 rounded-lg w-[30rem] shadow-2xl text-lg">
-        <h3 className="text-2xl font-bold mb-6">{task ? 'Edit Task' : 'Add Task'}</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-2xl font-bold">{task ? 'Edit Task' : 'Add Task'}</h3>
+          {createdAt && (
+            <div className="text-sm text-gray-600">
+              Created At: {new Date(createdAt).toLocaleString()}
+            </div>
+          )}
+        </div>
 
         <input
           value={name}
@@ -85,46 +114,30 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
           />
         </label>
 
-        <label className="block mb-2 flex items-center gap-2">
-          <input 
-            type="checkbox"
-            checked={needsApproval}
-            onChange={(e) => setNeedsApproval(e.target.checked)}
-            className="border border-blue-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          Requires Approval
-        </label>
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={handleApprovalToggle}
+            disabled={(approvalRequested && userRole !== 'Admin') || approved}
+            className={`px-4 py-2 rounded transition !text-white ${
+              approved
+                ? '!bg-gray-400 cursor-not-allowed'
+                : !approvalRequested
+                ? '!bg-blue-500 hover:bg-blue-600'
+                : userRole === 'Admin'
+                ? '!bg-green-500 hover:bg-green-600'
+                : '!bg-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {!approvalRequested ? 'Request Approval' : 'Approve'}
+          </button>
 
-        {needsApproval && (
-          <div className="mb-2">
-            {userRole === 'Admin' && approvalRequested ? (
-              <button
-                onClick={handleApprovalAction}
-                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-              >
-                Approve
-              </button>
-            ) : userRole !== 'Admin' && !approvalRequested ? (
-              <button
-                onClick={handleApprovalAction}
-                className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600 transition"
-              >
-                Request Approval
-              </button>
-            ) : (
-              <p className="text-sm text-gray-600">Approval status pending.</p>
-            )}
-          </div>
-        )}
-
-        {['Admin', 'Finance'].includes(userRole) && (
-          <div className="mb-2">
-            <div className="mb-4">
+          {['Admin', 'Finance'].includes(userRole) && (
+            <>
               <label
                 htmlFor="file-upload"
-                className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded inline-block"
+                className="cursor-pointer !bg-blue-500 !text-white px-4 py-2 rounded inline-block"
               >
-                Upload supporting document
+                Upload Document
               </label>
               <input
                 id="file-upload"
@@ -133,11 +146,11 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
                 className="hidden"
               />
               {selectedFile && (
-                <p className="text-sm text-gray-600 mt-2">Selected file: {selectedFile.name}</p>
+                <p className="text-sm !text-gray-600 mt-1">Selected: {selectedFile.name}</p>
               )}
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
 
         {['Admin', 'Finance'].includes(userRole) && documentUrl && (
           <div className="mb-2">
@@ -145,29 +158,53 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
               href={documentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline"
+              className="!text-blue-600 underline"
             >
               Download Attached File
             </a>
           </div>
         )}
 
-        {createdAt && (
-          <div className="text-sm text-gray-600 mb-2">
-            Created At: {new Date(createdAt).toLocaleString()}
-          </div>
-        )}
+        <div className="text-sm mb-4">
+          Status:{' '}
+          <span
+            className={`px-2 py-1 rounded !text-white ${
+              status === 'Ongoing'
+                ? '!bg-yellow-500'
+                : status === 'Approval Pending'
+                ? '!bg-orange-500'
+                : status === 'Approved'
+                ? '!bg-green-600'
+                : status === 'Completed'
+                ? '!bg-blue-600'
+                : '!bg-gray-400'
+            }`}
+          >
+            {status || 'Not set'}
+          </span>
+        </div>
 
-        <div className="flex justify-end space-x-2">
+        <div className="flex justify-between items-center mt-6">
+          <button
+            onClick={handleMarkAsComplete}
+            disabled={approvalRequested && !approved}
+            className={`px-4 py-2 rounded transition text-white ${
+              approvalRequested && !approved
+                ? '!bg-gray-400 cursor-not-allowed'
+                : '!bg-purple-600 hover:bg-purple-700'
+            }`}
+          >
+            Mark as Completed
+          </button>
           <button
             onClick={handleSave}
-            className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition mt-4"
+            className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition"
           >
             Save
           </button>
           <button
             onClick={onClose}
-            className="!bg-red-600 !text-white px-4 py-2 rounded hover:!bg-red-700 transition mt-4"
+            className="!bg-red-600 !text-white px-4 py-2 rounded hover:!bg-red-700 transition"
           >
             Cancel
           </button>

@@ -3,6 +3,7 @@ import HttpService from '../Utils/HttpService';
 
 const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
   const handleEdit = (task) => {
+    console.log("Task Status - ", task.status);
     if (typeof onTaskEdit === 'function') {
       onTaskEdit(task);
     } else {
@@ -27,7 +28,7 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
       {/* New Task Button */}
       <button
         onClick={() => onNewTask && onNewTask(phaseId)}
-        className="!bg-blue-600 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition"
+        className="!bg-cyan-500 !text-white px-4 py-2 rounded hover:!bg-blue-700 transition"
       >
         + New Task
       </button>
@@ -42,17 +43,32 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
               key={task._id}
               className="border border-blue-200 bg-blue-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
             >
-              <p className="font-semibold text-blue-800">{task.name}</p>
+              {/* Header Row: Task Name and Status */}
+              <div className="flex justify-between items-center">
+              <p className="text-lg font-semibold text-blue-800">{task.name}</p>
+
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-bold !text-white
+                    ${task.status === 'Ongoing' ? 'bg-yellow-500' :
+                      task.status === 'Approval Pending' ? 'bg-orange-500' :
+                      task.status === 'Approved' ? 'bg-green-600' :
+                      'bg-gray-400'}`}
+                >
+                  {task.status}
+                </span>
+              </div>
+
+              {/* Action Buttons */}
               <div className="flex gap-3 mt-3">
                 <button
                   onClick={() => handleEdit(task)}
-                  className="!bg-yellow-400 !text-black px-3 py-1 rounded hover:!bg-yellow-500 transition"
+                 className="!bg-teal-400 !text-white px-4 py-2 rounded hover:!bg-teal-500 transition"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(task._id)}
-                  className="!bg-red-500 !text-white px-3 py-1 rounded hover:!bg-red-600 transition"
+                  className="!bg-teal-400 !text-white px-4 py-2 rounded hover:!bg-teal-500 transition"
                 >
                   Delete
                 </button>

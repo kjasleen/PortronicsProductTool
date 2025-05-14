@@ -4,7 +4,8 @@ const { authMiddleware, allowRoles } = require('../Middleware/authMiddleware');
 const {
   createProduct,
   deleteProduct,
-  getAllProducts
+  getAllProducts,
+  getProductReport
 } = require('../Controllers/productController');
 
 // Only Admins can create or delete
@@ -13,5 +14,6 @@ router.delete('/:id', authMiddleware, allowRoles(['Admin']), deleteProduct);
 
 // All users can view
 router.get('/', authMiddleware, getAllProducts);
+router.get('/report/:productId', authMiddleware, getProductReport);
 
 module.exports = router;

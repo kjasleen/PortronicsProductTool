@@ -1,4 +1,36 @@
 const Product = require('../Models/product');
+const Phase = require('../Models/phase');
+const Task = require('../Models/task');
+
+exports.getProductReport  = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    // Fetch product data
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Fetch all phases related to the product
+    const phases = await Phase.find({ product: productId });
+
+    // Fetch all tasks related to those phases
+    const tasks = await Task.find({ phase: { $in: phases.map(phase => phase._id) } });
+
+    // Populate the tasks in each phase
+    const phasesWithTasks = phases.map(phase => ({
+      ...phase.toObject(),
+      tasks: tasks.filter(task => task.phase.toString() === phase._id.toString()) // Filter tasks for the current phase
+    }));
+
+    // Return the product report data (product + phases + tasks)
+    res.json({ product, phases: phasesWithTasks });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch product report' });
+  }
+};
 
 exports.createProduct = async (req, res) => {
   const { name } = req.body;

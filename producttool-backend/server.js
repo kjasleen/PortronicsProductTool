@@ -20,10 +20,10 @@ connectDB();
 
 app.use('/api/auth', require('./Routes/authRoutes'));
 app.get('/', (req, res) => res.send('API running'));
-//app.use('/api/protected', require('./Routes/protectedRoutes'));
 app.use('/api/products', require('./Routes/productRoutes'));
 app.use('/api/phases', require('./Routes/phaseRoutes'));
 app.use('/api/tasks', require('./Routes/taskRoutes'))
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

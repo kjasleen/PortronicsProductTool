@@ -9,11 +9,13 @@ exports.createTask = async (req, res) => {
     name,
     phaseId,
     estimatedCompletionDate,
-    needsApproval,
     approvalRequested,
+    approved,
+    completed, 
+    status
   } = req.body;
 
-  console.log("TaskController - CreateTask");
+  console.log("TaskController - CreateTask",JSON.stringify(req.body) );
   if (!name || !phaseId) {
     return res.status(400).json({ message: 'Task name and phaseId are required' });
   }
@@ -33,9 +35,11 @@ exports.createTask = async (req, res) => {
     const task = await Task.create({
       name,
       phase: phaseId,
+      status:status,
       estimatedCompletionDate: estimatedCompletionDate || null,
-      needsApproval: needsApproval === 'true',
+      approved: approved === 'true',
       approvalRequested: approvalRequested === 'true',
+      completed:completed === 'true',
       documentUrl: uploadedUrl || undefined,
     });
 
@@ -163,17 +167,20 @@ exports.getTasksByPhase = async (req, res) => {
 };
 
 exports.updateTask = async (req, res) => {
-  console.log("In Update Task");
-  const { name, estimatedCompletionDate, needsApproval, approvalRequested } = req.body;
+  const { name, estimatedCompletionDate, approved, approvalRequested,completed, status } = req.body;
   const taskId = req.params.id;
-  console.log("Upadate Task", name, estimatedCompletionDate, needsApproval, approvalRequested, taskId);
+  
   try {
     const updateFields = {
       name,
       estimatedCompletionDate,
-      needsApproval: needsApproval === 'true',
+      approved: approved === 'true',
+      status:status,
+      completed:completed,
       approvalRequested: approvalRequested === 'true',
     };
+
+    console.log("updateTask", JSON.stringify(updateFields));
 
     // If a new file is uploaded, upload to Cloudinary and update documentUrl
     if (req.file) {

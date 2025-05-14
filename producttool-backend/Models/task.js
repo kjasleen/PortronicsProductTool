@@ -7,11 +7,13 @@ const taskSchema = new mongoose.Schema({
   documentUrl: { type: String },
   status: {
     type: String,
-    enum: ['Ongoing', 'Completed'],
+    enum: ['Ongoing', 'Completed', 'Approval Pending', 'Approved'],
     default: 'Ongoing'
   },
-  needsApproval: { type: Boolean, default: false },
+ // needsApproval: { type: Boolean, default: false },
+  approvalRequested: { type: Boolean, default: false },
   approved: { type: Boolean, default: false },
+  completed: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

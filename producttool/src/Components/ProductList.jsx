@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiTrash2 } from 'react-icons/fi'; // lightweight trash icon
+import { BsBarChart } from 'react-icons/bs'; // report icon
 import HttpService from '../Utils/HttpService';
 
 const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
@@ -38,12 +39,26 @@ const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
               className="relative shrink-0 w-44 h-44 bg-gradient-to-br from-blue-100 to-blue-300 rounded-2xl shadow-md flex items-center justify-center text-xl font-semibold text-blue-900 hover:shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer group"
             >
               {product.name}
+
+              {/* Delete Button */}
               <button
                 onClick={(e) => handleDelete(product._id, e)}
                 title="Delete Product"
                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 !bg-white !text-red-500 hover:!text-red-700 rounded-full p-1 shadow-sm"
               >
                 <FiTrash2 size={18} />
+              </button>
+
+              {/* Report Button (Visible on Hover) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/report/${product._id}`);
+                }}
+                title="View Report"
+                className="absolute bottom-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 !bg-blue-600 text-white p-2 rounded-full shadow-md hover:!bg-blue-700"
+              >
+                <BsBarChart size={20} />
               </button>
             </div>
           ))}
@@ -52,4 +67,5 @@ const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
     </div>
   );
 };
+
 export default ProductList;

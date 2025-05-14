@@ -4,6 +4,7 @@ import Dashboard from './Pages/Dashboard';
 import ProductPage from './Components/NewProduct';
 import Login from './Pages/Login';
 import ProductPhases from './Pages/ProductPhases'; // ✅ Import added
+import ProductReport from './Pages/ProductReport'; // ✅ Import added
 import { useState, useEffect } from 'react';
 import PrivateRoute from './Components/PrivateRoute';
 
@@ -63,6 +64,14 @@ function App() {
           element={
             <PrivateRoute>
               <ProductPhases />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/report/:productId"
+          element={
+            <PrivateRoute>
+              <ProductReport />
             </PrivateRoute>
           }
         />

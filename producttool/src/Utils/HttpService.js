@@ -13,7 +13,7 @@ class HttpService {
     // Automatically add Authorization token from localStorage
     this.api.interceptors.request.use(
       (config) => {
-        console.log("Adding token in HTTPService");
+       // console.log("Adding token in HTTPService");
         const token = localStorage.getItem('token');
         if (token) {
           config.headers['Authorization'] = `Bearer ${token}`;
@@ -46,7 +46,7 @@ class HttpService {
   async get(url, params = {}) {
     try {
       const response = await this.api.get(url, { params });
-      console.log("Response in Get - ", response.data);
+      //console.log("Response in Get - ", response.data);
       return response.data;
     } catch (error) {
       console.log("Error in Get", error);
@@ -94,11 +94,11 @@ class HttpService {
   
   async putFile(url, data) {
     try {
-      console.log("HTTPservice Put File called", data);
+      //console.log("HTTPservice Put File called", data);
       const response = await this.api.put(url, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log("HTTPservice Put File Received resp", response.data);
+      //console.log("HTTPservice Put File Received resp", response.data);
       return response.data;
     } catch (error) {
       this.handleError(error);
