@@ -1,12 +1,35 @@
 import React from 'react';
 import logo from '../assets/logo.png';
-import { FiLogOut } from 'react-icons/fi'; // Logout icon from Feather icons
-
+import { FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom'; // ✅ Import useNavigate
 
 function Header({ user, onLogout }) {
+  const navigate = useNavigate(); // ✅ Initialize navigate
+
+  const goToDashboard = () => {
+    navigate('/dashboard'); // ✅ Adjust route as per your routing setup
+  };
+
   return (
-    <div className="header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px' }}>
-      <img src={logo} alt="Logo" width={130} height={100} />
+    <div
+      className="header-container"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 20px',
+      }}
+    >
+      {/* ✅ Make logo clickable */}
+      <img
+        src={logo}
+        alt="Logo"
+        width={130}
+        height={100}
+        onClick={goToDashboard}
+        style={{ cursor: 'pointer' }} // ✅ Add pointer cursor
+        title="Back to Dashboard"
+      />
 
       {user && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

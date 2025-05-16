@@ -55,6 +55,7 @@ function Dashboard() {
           products={ongoingProducts}
           title="🟡 Ongoing Products"
           noProductsMessage="No ongoing products available"
+          onRefresh={fetchProducts}
         />
       </div>
 
@@ -64,6 +65,7 @@ function Dashboard() {
           products={completedProducts}
           title="✅ Completed Products"
           noProductsMessage="No completed products available"
+          onRefresh={fetchProducts}
         />
       </div>
 

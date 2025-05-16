@@ -21,6 +21,7 @@ const ProductReport = () => {
     const fetchReportData = async () => {
       try {
         const reportData = await HttpService.get(`http://localhost:5000/api/products/report/${productId}`);
+        console.log("Report", reportData);
         setProduct(reportData.product);
         setPhases(reportData.phases);
         setLoading(false);
@@ -38,30 +39,22 @@ const ProductReport = () => {
   if (error) return <div className="text-red-600 p-4">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-4">
-      {/* Back to Dashboard Button */}
-      <div className="mb-6">
-        <button
-          onClick={() => navigate('/dashboard')}  // Navigate to dashboard
-          className="!text-lg !text-white !bg-blue-400 hover:!bg-blue-500 rounded-lg px-6 py-3 mb-4 shadow-lg transition-colors duration-300"
-        >
-          ← Back to Dashboard
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-80 px-5 py-2">
+     
 
       {/* Product Title */}
-      <h1 className="text-2xl font-bold text-blue-800 text-center mb-6">{product.name} Report</h1>
+      <h1 className="!text-3xl font-bold text-blue-800 text-center mb-6">{product.name} Report</h1>
 
       {/* Product Info */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-blue-600">Product Information</h2>
+        <h2 className="!text-xl font-semibold text-blue-600">Product Information</h2>
         <p className="text-base text-blue-500">Status: {product.status}</p>
         <p className="text-base text-blue-500">Created At: {new Date(product.createdAt).toLocaleDateString()}</p>
       </div>
 
       {/* Phases and Tasks */}
       <div>
-        <h2 className="text-xl font-semibold text-blue-600 mb-4">Phases</h2>
+        <h2 className="!text-xl font-semibold text-blue-800 mb-4">Phases</h2>
         {phases.length === 0 ? (
           <p className="text-gray-500">No phases found for this product.</p>
         ) : (
@@ -75,7 +68,7 @@ const ProductReport = () => {
                   <p className="text-gray-500">No tasks assigned to this phase.</p>
                 ) : (
                   <div className="mt-2">
-                    <h4 className="font-semibold text-blue-600 mb-2">Tasks:</h4>
+                    <h4 className="!text-xl font-semibold text-blue-800 mb-2">Tasks:</h4>
                     <ul className="space-y-2">
                       {phase.tasks.map((task) => {
                         const statusClass = statusColorMap[task.status] || 'bg-gray-100 text-gray-800 border-gray-400';

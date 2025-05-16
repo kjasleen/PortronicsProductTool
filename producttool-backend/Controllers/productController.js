@@ -61,6 +61,22 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
+exports.updateProduct = async (req, res) => {
+  const { id, status } = req.body;
+  try {
+    let updatedFields = {};
+    updatedFields.status = status;
+    console.log("Update Product", id, status);
+    const updated = await Product.findByIdAndUpdate(id, updatedFields, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Product not found' });
+    res.json({ message: 'Product updated successfully' });
+  } catch (err) {
+    console.log("updateProduct", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });

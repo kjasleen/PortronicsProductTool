@@ -93,7 +93,7 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
                   className={`px-4 py-2 rounded text-white transition
                     ${task.completed || (task.approvalRequested && !task.approved)
                       ? '!bg-gray-400 cursor-not-allowed'
-                      : '!bg-purple-400 hover:!bg-purple-500'
+                      : '!bg-teal-400 hover:!bg-teal-500'
                     }`}
                 >
                   {task.completed ? 'Completed' : 'Mark as Completed'}
