@@ -1,8 +1,9 @@
 // src/services/HttpService.js
 import axios from 'axios';
+import BASE_URL from '../config';
 
 class HttpService {
-  constructor(baseURL = '') {
+  constructor(baseURL = BASE_URL) {
     this.api = axios.create({
       baseURL,
       headers: {

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HttpService from '../Utils/HttpService';
-import './Login.css'; // External styling
+import './Login.css';
 
-function Login({ onLoginSuccess }) {
+export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -12,29 +12,25 @@ function Login({ onLoginSuccess }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    //e.preventDefault();
-    //setError('');
-     navigate('/dashboard');
-     return;
-    try {
-      const res = await HttpService.post('/api/auth/login', form);
-      console.log("Login", res);
-      localStorage.setItem('token', res.token);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await HttpService.post('/api/login', form);
+    console.log("login response",res);
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('userRole', res.role); // store user role
 
-      if (onLoginSuccess) {
-        onLoginSuccess({
-          username: res.user.username,
-          role: res.user.role
-        });
-      }
-
+    // Navigate based on role
+    if (res.role === 'supplier') {
       navigate('/dashboard');
-    } catch (err) {
-      console.log("Login Error", err);
-      setError(err.response?.data?.message || 'Login failed');
+    }else {
+      setError('Unknown user role');
     }
-  };
+  } catch (err) {
+    console.error("handleSubmit", err);
+    setError('Invalid username or password');
+  }
+};
 
   return (
     <div className="login-container">
@@ -62,5 +58,3 @@ function Login({ onLoginSuccess }) {
     </div>
   );
 }
-
-export default Login;

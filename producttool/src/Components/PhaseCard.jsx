@@ -8,7 +8,7 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
 
   const fetchTasks = async () => {
     try {
-      const data = await HttpService.get(`http://localhost:5000/api/tasks/phase/${phase._id}`);
+      const data = await HttpService.get(`/api/tasks/phase/${phase._id}`);
       setTasks(data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -25,7 +25,7 @@ const PhaseCard = ({ phase, onRefresh, onEditTask, onNewTask }) => {
     if (!confirmed) return;
 
     try {
-      await HttpService.delete(`http://localhost:5000/api/phases/${phase._id}`);
+      await HttpService.delete(`/api/phases/${phase._id}`);
       onRefresh();
     } catch (err) {
       console.error('Error deleting phase:', err);

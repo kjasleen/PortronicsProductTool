@@ -8,6 +8,20 @@ import ProductReport from './Pages/ProductReport'; // ✅ Import added
 import { useState, useEffect } from 'react';
 import PrivateRoute from './Components/PrivateRoute';
 
+const dummyOrders = [
+  {
+    orderId: "ORD001",
+    productName: "Smart Watch",
+    totalOrdered: 100,
+    productionStarted: 50,
+    productionCompleted: 20,
+    shippingStarted: 10,
+    shipped: 5,
+    supplier: "XYZ Supplier",
+    status: "Production Started"
+  },
+  // Add more dummy orders here
+];
 function App() {
   const [user, setUser] = useState(null);
 

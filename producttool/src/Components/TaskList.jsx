@@ -17,7 +17,7 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this task?');
     if (confirmDelete) {
       try {
-        await HttpService.delete(`http://localhost:5000/api/tasks/${taskId}`);
+        await HttpService.delete(`/api/tasks/${taskId}`);
         if (onRefresh) onRefresh(); // Refresh task list after deletion
       } catch (err) {
         console.error('Error deleting task:', err);
@@ -27,7 +27,7 @@ const TaskList = ({ tasks, phaseId, onRefresh, onTaskEdit, onNewTask }) => {
 
   const handleMarkAsComplete = async (task) => {
     try {
-      await HttpService.put(`http://localhost:5000/api/tasks/${task._id}`, {
+      await HttpService.put(`/api/tasks/${task._id}`, {
         ...task,
         completed: true,
         status: 'Completed'

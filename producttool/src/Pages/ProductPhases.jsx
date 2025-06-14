@@ -29,7 +29,7 @@ const ProductPhases = () => {
   
 
   const fetchPhases = async () => {
-    const data = await HttpService.get(`http://localhost:5000/api/phases/${id}`);
+    const data = await HttpService.get(`/api/phases/${id}`);
     setPhases(data);
   };
 
@@ -42,7 +42,7 @@ const ProductPhases = () => {
       return;
     }
 
-    await HttpService.post(`http://localhost:5000/api/phases/create`, { name: newPhase, productId: id });
+    await HttpService.post(`/api/phases/create`, { name: newPhase, productId: id });
     setNewPhase('');
     fetchPhases();
   };

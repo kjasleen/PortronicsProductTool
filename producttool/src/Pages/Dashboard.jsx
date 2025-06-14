@@ -1,80 +1,132 @@
-import React, { useState, useEffect } from 'react';
-import ProductList from '../Components/ProductList';
-import AddProductModal from '../Components/AddProductModal';
+import React, { useEffect, useState } from 'react';
 import HttpService from '../Utils/HttpService';
 
 function Dashboard() {
-  const [ongoingProducts, setOngoingProducts] = useState([]);
-  const [completedProducts, setCompletedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-
-  const fetchProducts = async () => {
-    try {
-      const data = await HttpService.get('http://localhost:5000/api/products/');
-      const products = Array.isArray(data) ? data : [];
-      setOngoingProducts(products.filter(p => p.status === 'Ongoing'));
-      setCompletedProducts(products.filter(p => p.status === 'Completed'));
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to fetch products');
-      setLoading(false);
-    }
-  };
+  const [orders, setOrders] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
-    fetchProducts();
+    const fetchOrders = async () => {
+      try {
+        // Replace with real API call if needed
+        const dummyData = [
+          {
+            orderId: 'ORD001',
+            productName: 'Smart Watch',
+            totalOrdered: 100,
+            productionStarted: 50,
+            productionCompleted: 20,
+            shippingStarted: 10,
+            shipped: 5,
+            supplier: 'XYZ Supplier',
+            status: 'Production Started',
+          },
+          {
+            orderId: 'ORD002',
+            productName: 'Wireless Earbuds',
+            totalOrdered: 200,
+            productionStarted: 100,
+            productionCompleted: 80,
+            shippingStarted: 50,
+            shipped: 30,
+            supplier: 'ABC Supplier',
+            status: 'Shipped',
+          },
+        ];
+        setOrders(dummyData);
+
+        const user = JSON.parse(localStorage.getItem('user'));
+        setUserRole(user?.role || '');
+      } catch (err) {
+        console.error('Failed to fetch orders:', err);
+      }
+    };
+
+    fetchOrders();
   }, []);
 
-  const handleProductAdded = () => fetchProducts();
+  const handleStatusChange = (orderId, newStatus) => {
+    setOrders(prev =>
+      prev.map(order =>
+        order.orderId === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+    // Send update to backend if needed
+  };
 
-  if (loading) return <div className="text-center mt-10 text-gray-500">Loading...</div>;
-  if (error) return <div className="text-center mt-10 text-red-600">{error}</div>;
+  const filteredOrders = filterStatus
+    ? orders.filter(order => order.status === filterStatus)
+    : orders;
+
+  const uniqueStatuses = [...new Set(orders.map(order => order.status))];
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-4">
-      {/* Page Heading */}
-      <h1 className="!text-5xl font-extrabold text-blue-800 text-center mb-10 tracking-tight">
-        Product Dashboard
-      </h1>
+    <div className="min-h-screen px-6 py-4 bg-gray-100">
+      <h1 className="text-4xl font-bold text-blue-800 text-center mb-8">📊 Product Dashboard</h1>
 
-      {/* Add Product Button */}
-      <div className="flex justify-end mb-8">
-        <button
-          onClick={() => setShowModal(true)}
-          className="!bg-blue-600 !text-white text-lg font-semibold px-6 py-3 rounded-lg shadow hover:!bg-blue-700 transition duration-200"
+      {/* Filter Dropdown */}
+      <div className="mb-4 flex justify-end">
+        <select
+          className="border rounded p-2 shadow"
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
         >
-          + Add Product
-        </button>
+          <option value="">All Statuses</option>
+          {uniqueStatuses.map(status => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
       </div>
 
-      {/* Ongoing Products */}
-      <div className="mb-12">
-        <ProductList
-          products={ongoingProducts}
-          title="🟡 Ongoing Products"
-          noProductsMessage="No ongoing products available"
-          onRefresh={fetchProducts}
-        />
+      {/* Table */}
+      <div className="overflow-x-auto bg-white rounded shadow">
+        <table className="min-w-full text-sm text-left">
+          <thead className="bg-blue-600 text-white">
+            <tr>
+              <th className="p-3">Order ID</th>
+              <th className="p-3">Product</th>
+              <th className="p-3">Supplier</th>
+              <th className="p-3 text-center">Ordered</th>
+              <th className="p-3 text-center">Started</th>
+              <th className="p-3 text-center">Completed</th>
+              <th className="p-3 text-center">Shipping</th>
+              <th className="p-3 text-center">Shipped</th>
+              <th className="p-3">Status</th>
+              {userRole === 'vendor.supplier' && <th className="p-3">Actions</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map(order => (
+              <tr key={order.orderId} className="border-b hover:bg-gray-50">
+                <td className="p-3">{order.orderId}</td>
+                <td className="p-3">{order.productName}</td>
+                <td className="p-3">{order.supplier}</td>
+                <td className="p-3 text-center">{order.totalOrdered}</td>
+                <td className="p-3 text-center">{order.productionStarted}</td>
+                <td className="p-3 text-center">{order.productionCompleted}</td>
+                <td className="p-3 text-center">{order.shippingStarted}</td>
+                <td className="p-3 text-center">{order.shipped}</td>
+                <td className="p-3">{order.status}</td>
+                {userRole === 'vendor.supplier' && (
+                  <td className="p-3">
+                    <select
+                      value={order.status}
+                      onChange={e => handleStatusChange(order.orderId, e.target.value)}
+                      className="border p-1 rounded"
+                    >
+                      <option>Production Started</option>
+                      <option>Production Completed</option>
+                      <option>Shipping Started</option>
+                      <option>Shipped</option>
+                    </select>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      {/* Completed Products */}
-      <div>
-        <ProductList
-          products={completedProducts}
-          title="✅ Completed Products"
-          noProductsMessage="No completed products available"
-          onRefresh={fetchProducts}
-        />
-      </div>
-
-      {/* Add Product Modal */}
-      <AddProductModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onProductAdded={handleProductAdded}
-      />
     </div>
   );
 }

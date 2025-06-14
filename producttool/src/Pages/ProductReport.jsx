@@ -20,7 +20,7 @@ const ProductReport = () => {
   useEffect(() => {
     const fetchReportData = async () => {
       try {
-        const reportData = await HttpService.get(`http://localhost:5000/api/products/report/${productId}`);
+        const reportData = await HttpService.get(`/api/products/report/${productId}`);
         console.log("Report", reportData);
         setProduct(reportData.product);
         setPhases(reportData.phases);

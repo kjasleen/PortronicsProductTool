@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import HttpService from '../Utils/HttpService';
 
+
 const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [name, setName] = useState('');
   const [categories, setCategories] = useState('');
@@ -10,7 +11,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     try 
     {
         let data = { name, categories: categories.split(',').map(c => c.trim()), status: 'Ongoing'}
-        await HttpService.post('http://localhost:5000/api/products/create', data);
+        await HttpService.post('/api/products/create', data);
 
         onProductAdded();
         onClose();

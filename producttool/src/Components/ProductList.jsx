@@ -48,7 +48,7 @@ const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
   const handleDelete = async (productId) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      await HttpService.delete(`http://localhost:5000/api/products/${productId}`);
+      await HttpService.delete(`/api/products/${productId}`);
       onRefresh();
     } catch (error) {
       alert('Error deleting product');
@@ -60,7 +60,7 @@ const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
 
   const handleProductUpdate = async (productId) => {
     try {
-      await HttpService.patch('http://localhost:5000/api/products/update', {id: productId,status: 'Completed'});
+      await HttpService.patch('/api/products/update', {id: productId,status: 'Completed'});
       onRefresh();
     } catch (error) {
       alert('Error updating product');
@@ -82,17 +82,17 @@ const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
     }
 
     try {
-      const data = await HttpService.get(`http://localhost:5000/api/products/report/${productId}`);
+      const data = await HttpService.get(`/api/products/report/${productId}`);
       const { phases } = data;
 
-      const newProductRes = await HttpService.post(`http://localhost:5000/api/products/create`, {
+      const newProductRes = await HttpService.post(`/api/products/create`, {
         name: copyName,
       });
 
       const newProductId = newProductRes._id;
 
       for (const phase of phases) {
-        const newPhaseRes = await HttpService.post(`http://localhost:5000/api/phases/create`, {
+        const newPhaseRes = await HttpService.post(`/api/phases/create`, {
           name: phase.name,
           productId: newProductId,
         });
@@ -100,7 +100,7 @@ const ProductList = ({ products, title, noProductsMessage, onRefresh }) => {
         const newPhaseId = newPhaseRes._id;
 
         for (const task of phase.tasks) {
-          await HttpService.post(`http://localhost:5000/api/tasks/create`, {
+          await HttpService.post(`/api/tasks/create`, {
             name: task.name,
             phaseId: newPhaseId,
             estimatedCompletionDate: task.estimatedCompletionDate,

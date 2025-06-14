@@ -50,9 +50,9 @@ const TaskFormModal = ({ phaseId, task, onClose, onRefresh }) => {
 
     try {
       if (task) {
-        await HttpService.putFile(`http://localhost:5000/api/tasks/${task._id}`, formData);
+        await HttpService.putFile(`/api/tasks/${task._id}`, formData);
       } else {
-        await HttpService.postFile(`http://localhost:5000/api/tasks/create`, formData);
+        await HttpService.postFile(`/api/tasks/create`, formData);
       }
       onRefresh();
       onClose();
