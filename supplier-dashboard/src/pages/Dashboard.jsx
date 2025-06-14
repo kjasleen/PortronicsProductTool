@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import CreateOrderModal from '../Components/CreateOrderModal';
+import CreateOrderModal from '../components/CreateOrderModal';
 import './Dashboard.css';
 
 const testOrders = [

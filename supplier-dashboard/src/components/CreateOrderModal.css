@@ -6,47 +6,56 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background: #fff;
   padding: 30px;
   border-radius: 8px;
-  width: 450px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 480px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 .modal-content h2 {
   margin-bottom: 20px;
   font-size: 1.5rem;
+  text-align: center;
+  color: #333;
 }
 
-.form-row {
-  margin-bottom: 15px;
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
 }
 
-.form-row label {
+.form-group label {
   font-weight: bold;
   margin-bottom: 5px;
+  color: #444;
 }
 
-.form-row input,
-.form-row select {
+.form-group input,
+.form-group select {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.form-actions {
+.button-row {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
 }
 
-.form-actions button {
-  padding: 8px 16px;
+.button-row button {
+  padding: 10px 16px;
   border: none;
   background-color: #0077cc;
   color: white;
@@ -54,6 +63,10 @@
   cursor: pointer;
 }
 
-.form-actions button:hover {
-  background-color: #005fa3;
+.button-row .cancel-button {
+  background-color: #888;
+}
+
+.button-row button:hover {
+  opacity: 0.9;
 }
