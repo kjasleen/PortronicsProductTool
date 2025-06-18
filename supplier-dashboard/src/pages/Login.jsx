@@ -17,15 +17,16 @@ export default function Login() {
   try {
     const res = await HttpService.post('/api/login', form);
     console.log("login response",res);
+    localStorage.setItem('supplierId', res.id);
     localStorage.setItem('token', res.token);
     localStorage.setItem('userRole', res.role); // store user role
 
     // Navigate based on role
-    if (res.role === 'supplier') {
+    //if (res.role === 'supplier') {
       navigate('/dashboard');
-    }else {
+    //}else {
       setError('Unknown user role');
-    }
+    //}
   } catch (err) {
     console.error("handleSubmit", err);
     setError('Invalid username or password');

@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
-import { use } from 'react';
+import { requireAdmin, authMiddleware } from '../middleware/authMiddleware.js';
+
 
 dotenv.config();
 const router = express.Router();
@@ -34,6 +35,7 @@ router.post('/login', async (req, res) => {
 
     // ✅ Add role to response
     res.json({
+      id:user._id,
       token,
       role: user.role,
       supplierName: user.supplierName || null, // optional if needed in frontend
@@ -43,5 +45,39 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
+// POST /api/auth/register
+router.post('/register', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { username, password, email, role, supplierName } = req.body;
+
+    if (!username || !password || !email) {
+      return res.status(400).json({ message: 'Username, email and password are required' });
+    }
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) return res.status(409).json({ message: 'User already exists' });
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    const newUser = new User({
+      username,
+      email,
+      passwordHash,
+      role: role || 'user',
+      supplierName: supplierName || null
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: 'User created successfully', userId: newUser._id });
+  } catch (e) {
+    console.error("Error during user registration:", e);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 
 export default router;

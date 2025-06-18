@@ -4,47 +4,73 @@ import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Get orders
 router.get('/', authMiddleware, async (req, res) => {
-  if (req.user.role === 'supplier') {
-    const orders = await Order.find({ supplier: req.user.id });
-    return res.json(orders);
-  } else if (req.user.role === 'company') {
-    const orders = await Order.find().populate('supplier', 'supplierName');
-    return res.json(orders);
-  } else {
-    return res.status(403).json({ message: 'Unauthorized' });
+  console.log("get Orders");
+  try {
+    if (req.user.role === 'supplier') {
+      const orders = await Order.find({ supplier: req.user.id }).populate('supplier', 'supplierName');
+      return res.json(orders);
+    } else if (req.user.role === 'company' || req.user.role === 'admin') {
+      const orders = await Order.find().populate('supplier', 'supplierName');
+      return res.json(orders);
+    } else {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+    res.status(500).json({ message: 'Failed to fetch orders' });
   }
 });
 
-router.put('/:id', authMiddleware, async (req, res) => {
-  const order = await Order.findById(req.params.id);
-  if (!order) return res.status(404).json({ message: 'Order not found' });
-
-  if (req.user.role !== 'supplier' || order.supplier.toString() !== req.user.id) {
-    return res.status(403).json({ message: 'Unauthorized to update this order' });
+// Create new order
+router.post('/create', async (req, res) => {
+  console.log("Create Order API ", req.body);
+  try {
+    const newOrder = new Order(req.body);
+    const savedOrder = await newOrder.save();
+    res.status(201).json(savedOrder);
+  } catch (err) {
+    console.error("Error creating order:", err);
+    res.status(500).json({ message: 'Failed to create order' });
   }
+});
 
-  const {
-    productionStarted,
-    productionCompleted,
-    shippingStarted,
-    shipped
-  } = req.body;
+// Update an order
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
 
-  order.productionStarted = productionStarted;
-  order.productionCompleted = productionCompleted;
-  order.shippingStarted = shippingStarted;
-  order.shipped = shipped;
+    if (req.user.role !== 'supplier' || order.supplier.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized to update this order' });
+    }
 
-  // Derive status from stages
-  if (shipped > 0) order.status = 'Shipped';
-  else if (shippingStarted > 0) order.status = 'Shipping Started';
-  else if (productionCompleted > 0) order.status = 'Production Completed';
-  else if (productionStarted > 0) order.status = 'Production Started';
-  else order.status = 'Ordered';
+    console.log("UPDATE REQUEST BODY:", req.body);
 
-  await order.save();
-  res.json({ message: 'Order updated', order });
+    const {
+      productionStarted,
+      shipped,
+      productionStartedDate,
+      estimatedProductionCompletionDate,
+      shippingDate
+    } = req.body;
+
+    order.productionStarted = productionStarted;
+    order.shipped = shipped;
+    order.productionStartedDate = productionStartedDate;
+    order.estimatedProductionCompletionDate = estimatedProductionCompletionDate;
+    order.shippingDate = shippingDate;
+
+    console.log("Updated Order - ", order);
+
+    await order.save();
+    res.json({ message: 'Order updated', order });
+
+  } catch (err) {
+    console.error("Error updating order:", err);
+    res.status(500).json({ message: 'Failed to update order' });
+  }
 });
 
 export default router;

@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 
   try {
     const products = await Product.find(filter);
-    console.log(products);
+    //console.log(products);
     res.json(products);
   } catch (err) {
     console.log("Error in fetching product", err);

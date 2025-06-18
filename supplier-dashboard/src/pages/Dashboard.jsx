@@ -1,90 +1,112 @@
 import React, { useState, useEffect } from 'react';
+import HttpService from '../Utils/HttpService';
 import CreateOrderModal from '../components/CreateOrderModal';
+import EditOrderModal from '../components/EditOrderModal';
 import './Dashboard.css';
-
-const testOrders = [
-  {
-    id: 'ORD001',
-    productName: 'Smart Watch',
-    totalOrdered: 100,
-    productionStarted: 50,
-    productionCompleted: 20,
-    shippingStarted: 10,
-    shipped: 5,
-    supplier: 'XYZ Supplier',
-    status: 'Production Started',
-  },
-  {
-    id: 'ORD002',
-    productName: 'Bluetooth Speaker',
-    totalOrdered: 50,
-    productionStarted: 50,
-    productionCompleted: 50,
-    shippingStarted: 50,
-    shipped: 40,
-    supplier: 'XYZ Supplier',
-    status: 'Shipped',
-  },
-  {
-    id: 'ORD003',
-    productName: 'Earphones',
-    totalOrdered: 200,
-    productionStarted: 0,
-    productionCompleted: 0,
-    shippingStarted: 0,
-    shipped: 0,
-    supplier: 'ABC Supplier',
-    status: 'Pending',
-  },
-];
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [userRole, setUserRole] = useState('supplier'); // or 'company'
+  const [supplierFilter, setSupplierFilter] = useState('');
+  const [suppliers, setSuppliers] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole'));
 
   useEffect(() => {
-    setOrders(testOrders);
-    setFiltered(testOrders);
+    fetchOrders();
   }, []);
 
-  useEffect(() => {
-    if (statusFilter === '') {
-      setFiltered(orders);
-    } else {
-      setFiltered(orders.filter(o => o.status === statusFilter));
-    }
-  }, [statusFilter, orders]);
+  const fetchOrders = async () => {
+    try {
+      const data = await HttpService.get('/api/orders');
+      setOrders(data);
 
-  const handleCreateOrder = (newOrder) => {
-    const newEntry = {
-      ...newOrder,
-      id: `ORD${orders.length + 1}`,
-      productionStarted: 0,
-      productionCompleted: 0,
-      shippingStarted: 0,
-      shipped: 0,
-      status: 'Pending',
-    };
-    const updatedOrders = [...orders, newEntry];
-    setOrders(updatedOrders);
-    setFiltered(updatedOrders);
-    setShowModal(false);
+      let supplierId = localStorage.getItem('supplierId');
+      let filteredData = data;
+
+      if (userRole === 'supplier') {
+        filteredData = data.filter(order => order.supplier?._id === supplierId);
+      }
+
+      setFiltered(filteredData);
+
+      if (data.length && data[0].supplier?.supplierName) {
+        const uniqueSuppliers = [...new Map(data.map(o => [o.supplier._id, o.supplier.supplierName])).entries()]
+          .map(([id, name]) => ({ id, name }));
+        setSuppliers(uniqueSuppliers);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
   };
 
-  const handleStageChange = (id, field, value) => {
-    const updated = orders.map(order =>
-      order.id === id ? { ...order, [field]: Number(value) } : order
-    );
-    setOrders(updated);
-    setFiltered(updated);
+  useEffect(() => {
+    let filteredOrders = [...orders];
+
+    if (statusFilter !== '') {
+      filteredOrders = filteredOrders.filter(o => o.status === statusFilter);
+    }
+
+    if (supplierFilter !== '') {
+      filteredOrders = filteredOrders.filter(o => o.supplier._id === supplierFilter);
+    }
+
+    if (userRole === 'supplier') {
+      filteredOrders = filteredOrders.filter(order => order.supplier?._id === localStorage.getItem('supplierId'));
+    }
+
+    setFiltered(filteredOrders);
+  }, [statusFilter, supplierFilter, orders]);
+
+  const handleCreateOrder = async (newOrder) => {
+    try {
+      const supplierId = localStorage.getItem('supplierId');
+      newOrder.supplier = supplierId;
+      const createdOrder = await HttpService.post('/api/orders/create', newOrder);
+      const updatedOrders = [...orders, createdOrder];
+      setOrders(updatedOrders);
+      setFiltered(updatedOrders);
+      setShowCreateModal(false);
+    } catch (error) {
+      console.error('Error creating order:', error);
+    }
+  };
+
+  const handleOpenEditModal = (order) => {
+    setSelectedOrder(order);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateOrder = async (updatedOrder) => {
+    try {
+      await HttpService.put(`/api/orders/${updatedOrder._id}`, updatedOrder);
+      const updated = orders.map(order =>
+        order._id === updatedOrder._id ? updatedOrder : order
+      );
+      setOrders(updated);
+      setFiltered(updated);
+      setShowEditModal(false);
+    } catch (error) {
+      console.error('Error updating order:', error);
+    }
   };
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-heading">Order Dashboard / Report</h2>
+      <div className="dashboard-header">
+        <h2 className="dashboard-heading">Order Dashboard / Report</h2>
+        {(userRole === 'admin') && (
+          <button
+            className="add-user-button"
+            onClick={() => alert('Open Add User Modal or Navigate to Add User Page')}
+          >
+            + Add User
+          </button>
+        )}
+      </div>
 
       <div className="controls">
         <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
@@ -94,8 +116,17 @@ const Dashboard = () => {
           <option value="Shipped">Shipped</option>
         </select>
 
+        {(userRole === 'company' || userRole === 'admin') && (
+          <select onChange={(e) => setSupplierFilter(e.target.value)} value={supplierFilter}>
+            <option value="">All Suppliers</option>
+            {suppliers.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        )}
+
         {userRole === 'supplier' && (
-          <button className="add-order-button" onClick={() => setShowModal(true)}>
+          <button className="add-order-button" onClick={() => setShowCreateModal(true)}>
             + Create Order
           </button>
         )}
@@ -109,71 +140,47 @@ const Dashboard = () => {
               <th>Product</th>
               <th>Total Ordered</th>
               <th>Production Started</th>
-              <th>Production Completed</th>
-              <th>Shipping Started</th>
+              <th>Production Start Date</th>
+              <th>Estimated Completion</th>
+              <th>Shipping Date</th>
               <th>Shipped</th>
-              <th>Status</th>
               <th>Supplier</th>
+              {userRole === 'supplier' && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {filtered.map(order => (
-              <tr key={order.id}>
-                <td>{order.id}</td>
+              <tr key={order._id}>
+                <td>{order._id}</td>
                 <td>{order.productName}</td>
                 <td>{order.totalOrdered}</td>
-
-                {/* Editable fields */}
-                {userRole === 'supplier' ? (
-                  <>
-                    <td>
-                      <input
-                        type="number"
-                        value={order.productionStarted}
-                        onChange={(e) => handleStageChange(order.id, 'productionStarted', e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        value={order.productionCompleted}
-                        onChange={(e) => handleStageChange(order.id, 'productionCompleted', e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        value={order.shippingStarted}
-                        onChange={(e) => handleStageChange(order.id, 'shippingStarted', e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        value={order.shipped}
-                        onChange={(e) => handleStageChange(order.id, 'shipped', e.target.value)}
-                      />
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>{order.productionStarted}</td>
-                    <td>{order.productionCompleted}</td>
-                    <td>{order.shippingStarted}</td>
-                    <td>{order.shipped}</td>
-                  </>
+                <td>{order.productionStarted}</td>
+                <td>{order.productionStartedDate ? new Date(order.productionStartedDate).toLocaleDateString() : '—'}</td>
+                <td>{order.estimatedProductionCompletionDate ? new Date(order.estimatedProductionCompletionDate).toLocaleDateString() : '—'}</td>
+                <td>{order.shippingDate ? new Date(order.shippingDate).toLocaleDateString() : '—'}</td>
+                <td>{order.shipped}</td>
+                <td>{(userRole === 'company' || userRole === 'admin') ? (order.supplier?.supplierName || 'N/A') : 'You'}</td>
+                {userRole === 'supplier' && (
+                  <td>
+                    <button className="edit-order-button" onClick={() => handleOpenEditModal(order)}>Edit</button>
+                  </td>
                 )}
-
-                <td>{order.status}</td>
-                <td>{order.supplier}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {showModal && (
-        <CreateOrderModal onClose={() => setShowModal(false)} onCreate={handleCreateOrder} />
+      {showCreateModal && (
+        <CreateOrderModal onClose={() => setShowCreateModal(false)} onCreate={handleCreateOrder} />
+      )}
+
+      {showEditModal && selectedOrder && (
+        <EditOrderModal
+          order={selectedOrder}
+          onClose={() => setShowEditModal(false)}
+          onSave={handleUpdateOrder}
+        />
       )}
     </div>
   );

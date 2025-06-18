@@ -7,28 +7,39 @@ export default function CreateOrderModal({ onClose, onCreate }) {
     productId: '',
     productName: '',
     totalOrdered: '',
-    supplier: '',
+    withPacking: false,
+    masterCartonSize: '',
   });
 
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filteredCategories, setFilteredCategories] = useState([]);
+
   const [filters, setFilters] = useState({
     category: '',
     superCategory: '',
-    search: '',
   });
 
   useEffect(() => {
     fetchProducts();
-    const supplierName = localStorage.getItem('supplierName');
-    setForm((prev) => ({ ...prev, supplier: supplierName || '' }));
   }, []);
 
   const fetchProducts = async () => {
     try {
       const res = await HttpService.get('/api/products');
-      setAllProducts(res);
-      setFilteredProducts(res);
+      const normalized = res.map((p) => ({
+        _id: p._id,
+        productName: p["Product Name"],
+        sku: p.SKU,
+        category: p.Category,
+        superCategory: p["Super Category"],
+      }));
+
+      setAllProducts(normalized);
+      setFilteredProducts(normalized);
+
+      const categories = [...new Set(normalized.map((p) => p.category))];
+      setFilteredCategories(categories);
     } catch (err) {
       console.error('Failed to fetch products', err);
     }
@@ -39,26 +50,37 @@ export default function CreateOrderModal({ onClose, onCreate }) {
     const updatedFilters = { ...filters, [name]: value };
     setFilters(updatedFilters);
 
+    if (name === 'superCategory') {
+      const newCategories = [
+        ...new Set(
+          allProducts
+            .filter((p) => value === '' || p.superCategory === value)
+            .map((p) => p.category)
+        ),
+      ];
+      setFilteredCategories(newCategories);
+      updatedFilters.category = '';
+    }
+
     const filtered = allProducts.filter((product) => {
-      const matchesCategory = updatedFilters.category
-        ? product.category === updatedFilters.category
-        : true;
-      const matchesSuperCategory = updatedFilters.superCategory
+      const matchSC = updatedFilters.superCategory
         ? product.superCategory === updatedFilters.superCategory
         : true;
-      const matchesSearch = updatedFilters.search
-        ? product.productName.toLowerCase().includes(updatedFilters.search.toLowerCase()) ||
-          product.sku.toLowerCase().includes(updatedFilters.search.toLowerCase())
+      const matchCat = updatedFilters.category
+        ? product.category === updatedFilters.category
         : true;
-      return matchesCategory && matchesSuperCategory && matchesSearch;
+      return matchSC && matchCat;
     });
 
     setFilteredProducts(filtered);
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
 
     if (name === 'productId') {
       const selectedProduct = allProducts.find((p) => p._id === value);
@@ -70,14 +92,13 @@ export default function CreateOrderModal({ onClose, onCreate }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.productId || !form.totalOrdered || !form.supplier) {
+    if (!form.productId || !form.totalOrdered || !form.masterCartonSize) {
       alert('Please fill all required fields');
       return;
     }
     onCreate(form);
   };
 
-  const categories = [...new Set(allProducts.map((p) => p.category))];
   const superCategories = [...new Set(allProducts.map((p) => p.superCategory))];
 
   return (
@@ -85,16 +106,6 @@ export default function CreateOrderModal({ onClose, onCreate }) {
       <div className="modal-content">
         <h2>Create New Order</h2>
         <form onSubmit={handleSubmit} className="form-grid">
-          <div className="form-group">
-            <label>Category:</label>
-            <select name="category" value={filters.category} onChange={handleFilterChange}>
-              <option value="">All</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
           <div className="form-group">
             <label>Super Category:</label>
             <select name="superCategory" value={filters.superCategory} onChange={handleFilterChange}>
@@ -106,50 +117,71 @@ export default function CreateOrderModal({ onClose, onCreate }) {
           </div>
 
           <div className="form-group">
-            <label>Search by Name/SKU:</label>
-            <input
-              type="text"
-              name="search"
-              value={filters.search}
-              onChange={handleFilterChange}
-              placeholder="Type product name or SKU"
-            />
+            <label>Category:</label>
+            <select name="category" value={filters.category} onChange={handleFilterChange}>
+              <option value="">All</option>
+              {filteredCategories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
             <label>Select Product:</label>
             <select name="productId" value={form.productId} onChange={handleChange}>
               <option value="">-- Select Product --</option>
-              {filteredProducts.map((p, index) => (
-                <option key={p._id || p.sku || index} value={p._id}>
+              {filteredProducts.map((p) => (
+                <option key={p._id} value={p._id}>
                   {p.productName} ({p.sku})
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="form-group">
-            <label>Total Ordered:</label>
-            <input
-              type="number"
-              name="totalOrdered"
-              min="1"
-              value={form.totalOrdered}
-              onChange={handleChange}
-            />
+          {/* Flex Row: Total Ordered, With Packing, Master Carton Size */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Total Ordered:</label>
+              <input
+                type="number"
+                name="totalOrdered"
+                min="1"
+                value={form.totalOrdered}
+                onChange={handleChange}
+              />
+            </div>
+
+          <div className="form-group checkbox-align">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="withPacking"
+                checked={form.withPacking}
+                onChange={handleChange}
+              />
+              With Packing
+            </label>
           </div>
 
-          <div className="form-group">
-            <label>Supplier:</label>
-            <input type="text" name="supplier" value={form.supplier} disabled />
+
+
+            <div className="form-group">
+              <label>Master Carton Size:</label>
+              <input
+                type="number"
+                name="masterCartonSize"
+                min="1"
+                value={form.masterCartonSize}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           <div className="button-row">
             <button type="submit">Create Order</button>
-            <button type="button" onClick={() => {
-    console.log('Cancel clicked');
-    onClose();
-  }} className="cancel-button">Cancel</button>
+            <button type="button" onClick={onClose} className="cancel-button">
+              Cancel
+            </button>
           </div>
         </form>
       </div>
