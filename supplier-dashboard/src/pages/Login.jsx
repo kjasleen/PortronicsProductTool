@@ -20,6 +20,7 @@ export default function Login() {
     localStorage.setItem('supplierId', res.id);
     localStorage.setItem('token', res.token);
     localStorage.setItem('userRole', res.role); // store user role
+    localStorage.setItem('username', form.username)
 
     // Navigate based on role
     //if (res.role === 'supplier') {

@@ -2,29 +2,73 @@
   padding: 20px;
 }
 
-.dashboard-heading {
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+.dashboard-heading {
   font-size: 24px;
+  margin: 0;
+}
+
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .controls {
-  margin-bottom: 20px;
   display: flex;
   gap: 10px;
   align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-order-button,
+.add-user-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
 }
 
 .add-order-button {
-  padding: 6px 12px;
   background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .add-order-button:hover {
   background-color: #0056b3;
+}
+
+.add-user-button {
+  background-color: #17a2b8;
+}
+
+.add-user-button:hover {
+  background-color: #117a8b;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+.user-info:hover {
+  background-color: #f0f0f0;
+}
+
+.logout-icon {
+  font-size: 1.2rem;
 }
 
 .table-container {
@@ -33,6 +77,7 @@
 
 .orders-table {
   width: 100%;
+  min-width: 1200px; /* Ensures wide tables with new fields don't break */
   border-collapse: collapse;
 }
 
@@ -44,6 +89,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 14px;
 }
 
 .orders-table th {
@@ -62,22 +108,21 @@
 .edit-order-button:hover {
   background-color: #218838;
 }
-.dashboard-header {
+
+.export-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  gap: 10px;
 }
 
-.add-user-button {
+.export-button {
   padding: 6px 12px;
-  background-color: #17a2b8;
+  background-color: #0c38b0;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.add-user-button:hover {
-  background-color: #117a8b;
+.export-button:hover {
+  background-color: #2a08ed;
 }

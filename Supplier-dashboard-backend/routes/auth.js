@@ -27,7 +27,6 @@ router.post('/login', async (req, res) => {
         id: user._id,
         username: user.username,
         role: user.role,
-        supplierName: user.supplierName || null,
       },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
@@ -38,7 +37,6 @@ router.post('/login', async (req, res) => {
       id:user._id,
       token,
       role: user.role,
-      supplierName: user.supplierName || null, // optional if needed in frontend
     });
   } catch (e) {
     console.error("Error while login", e);
@@ -49,24 +47,38 @@ router.post('/login', async (req, res) => {
 // POST /api/auth/register
 router.post('/register', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const { username, password, email, role, supplierName } = req.body;
-
-    if (!username || !password || !email) {
+    console.log("In Register");
+    const { name, password, email, role } = req.body;
+    console.log("In Register 1 user ", name);
+    console.log("In Register 1 pass", password);
+    console.log("In Register 1 role", role);
+        
+    if (!name || !password || !role) {
       return res.status(400).json({ message: 'Username, email and password are required' });
     }
 
-    const existingUser = await User.findOne({ username });
+    /*if(role == "supplier")
+    {
+      if(!supplierName)
+      {
+        console.log("Supplier name is required as role is supplier");
+        return res.status(400).json({ message: 'Supplier name is required' });
+      }
+    }*/
+
+     console.log("In Register 2");
+    const existingUser = await User.findOne({ name });
     if (existingUser) return res.status(409).json({ message: 'User already exists' });
 
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
+    let username = name;
     const newUser = new User({
       username,
       email,
       passwordHash,
       role: role || 'user',
-      supplierName: supplierName || null
     });
 
     await newUser.save();

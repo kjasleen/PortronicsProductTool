@@ -4,10 +4,13 @@ import './EditOrderModal.css';
 const EditOrderModal = ({ order, onClose, onSave }) => {
   const [productionStarted, setProductionStarted] = useState(order.productionStarted || 0);
   const [shipped, setShipped] = useState(order.shipped || 0);
-
   const [productionStartedDate, setProductionStartedDate] = useState(order.productionStartedDate || '');
-  const [estimatedProductionCompletionDate, setEstimatedProductionCompletionDate] = useState(order.estimatedProductionCompletionDate || '');
+  const [productionCompletionDate, setProductionCompletionDate] = useState(order.productionCompletionDate || '');
   const [shippingDate, setShippingDate] = useState(order.shippingDate || '');
+
+  const [shippingMode, setShippingMode] = useState(order.shippingMode || '');
+  const [landingPort, setLandingPort] = useState(order.landingPort || '');
+  const [estimatedLandingDate, setEstimatedLandingDate] = useState(order.estimatedLandingDate || '');
 
   const totalOrdered = order.totalOrdered || 0;
   const isValid = productionStarted + shipped <= totalOrdered;
@@ -38,8 +41,11 @@ const EditOrderModal = ({ order, onClose, onSave }) => {
       productionStarted,
       shipped,
       productionStartedDate,
-      estimatedProductionCompletionDate,
+      productionCompletionDate,
       shippingDate,
+      shippingMode,
+      landingPort,
+      estimatedLandingDate,
       status:
         shipped > 0
           ? 'Shipped'
@@ -56,66 +62,81 @@ const EditOrderModal = ({ order, onClose, onSave }) => {
         <h3>Edit Order Status</h3>
         <p>Total Ordered: <strong>{totalOrdered}</strong></p>
 
-       <table className="status-quantity-table">
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Quantity</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Production Started</td>
-            <td>
-              <input
-                type="number"
-                min="0"
-                value={productionStarted}
-                onChange={(e) => handleProductionChange(e.target.value)}
-              />
-            </td>
-            <td>
-              {productionStartedDate ? (
-                <span>{productionStartedDate}</span>
-              ) : (
-                <span style={{ color: '#888' }}>–</span>
-              )}
-            </td>
-          </tr>
+        <table className="status-quantity-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Quantity</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Production Started</td>
+              <td>
+                <input
+                  type="number"
+                  min="0"
+                  value={productionStarted}
+                  onChange={(e) => handleProductionChange(e.target.value)}
+                />
+              </td>
+              <td>{productionStartedDate || <span style={{ color: '#888' }}>–</span>}</td>
+            </tr>
+            <tr>
+              <td>Completion Date</td>
+              <td colSpan="2">
+                <input
+                  type="date"
+                  value={productionCompletionDate}
+                  onChange={(e) => setProductionCompletionDate(e.target.value)}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Shipped</td>
+              <td>
+                <input
+                  type="number"
+                  min="0"
+                  value={shipped}
+                  onChange={(e) => handleShippedChange(e.target.value)}
+                />
+              </td>
+              <td>{shippingDate || <span style={{ color: '#888' }}>–</span>}</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <tr>
-            <td>Est. Production Completion</td>
-            <td colSpan="2">
-              <input
-                type="date"
-                value={estimatedProductionCompletionDate}
-                onChange={(e) => setEstimatedProductionCompletionDate(e.target.value)}
-              />
-            </td>
-          </tr>
+        <div className="date-fields">
+          <label>
+            Shipping Mode (Air/Sea)
+            <select value={shippingMode} onChange={(e) => setShippingMode(e.target.value)}>
+              <option value="">Select Mode</option>
+              <option value="Air">Air</option>
+              <option value="Sea">Sea</option>
+            </select>
+          </label>
 
-          <tr>
-            <td>Shipped</td>
-            <td>
-              <input
-                type="number"
-                min="0"
-                value={shipped}
-                onChange={(e) => handleShippedChange(e.target.value)}
-              />
-            </td>
-            <td>
-              {shippingDate ? (
-                <span>{shippingDate}</span>
-              ) : (
-                <span style={{ color: '#888' }}>–</span>
-              )}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          <label>
+            Landing Port
+            <select value={landingPort} onChange={(e) => setLandingPort(e.target.value)}>
+              <option value="">Select Port</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Chennai">Chennai</option>
+            </select>
+          </label>
 
+          <label>
+            Estimated Landing Date
+            <input
+              type="date"
+              value={estimatedLandingDate}
+              onChange={(e) => setEstimatedLandingDate(e.target.value)}
+            />
+          </label>
+        </div>
 
         <p className={isValid ? 'valid' : 'invalid'}>
           Assigned Total: {productionStarted + shipped} / {totalOrdered}

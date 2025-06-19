@@ -92,7 +92,7 @@ export default function CreateOrderModal({ onClose, onCreate }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.productId || !form.totalOrdered || !form.masterCartonSize) {
+    if (!form.productId || !form.totalOrdered) {
       alert('Please fill all required fields');
       return;
     }

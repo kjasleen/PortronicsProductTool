@@ -127,14 +127,21 @@
 .date-fields {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 1rem;
+  gap: 1rem;
 }
 
 .date-fields label {
   display: flex;
   flex-direction: column;
-  font-weight: 500;
+  font-weight: bold;
+}
+
+.date-fields select,
+.date-fields input[type="date"] {
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .date-fields input[type="date"] {

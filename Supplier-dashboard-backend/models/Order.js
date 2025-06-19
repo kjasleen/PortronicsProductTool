@@ -6,10 +6,24 @@ const orderSchema = new mongoose.Schema({
   productionStarted: Number,
   shipped: Number,
   productionStartedDate: Date,
-  estimatedProductionCompletionDate: Date,
+  productionCompletionDate: Date, // renamed from estimatedProductionCompletionDate
   shippingDate: Date,
+
+  shippingMode: {
+    type: String,
+    enum: ['Air', 'Sea'],
+    default: 'Sea'
+  },
+  landingPort: {
+    type: String,
+    enum: ['Delhi', 'Mumbai', 'Chennai'],
+    default: 'Delhi'
+  },
+  estimatedLandingDate: Date,
+
   withPacking: { type: Boolean, default: true },
-  masterCartonSize: { type: Number, min: 1 },
+  masterCartonSize: { type: Number },
+
   supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 

@@ -9,10 +9,10 @@ router.get('/', authMiddleware, async (req, res) => {
   console.log("get Orders");
   try {
     if (req.user.role === 'supplier') {
-      const orders = await Order.find({ supplier: req.user.id }).populate('supplier', 'supplierName');
+      const orders = await Order.find({ supplier: req.user.id }).populate('supplier', 'username');
       return res.json(orders);
     } else if (req.user.role === 'company' || req.user.role === 'admin') {
-      const orders = await Order.find().populate('supplier', 'supplierName');
+      const orders = await Order.find().populate('supplier', 'username');
       return res.json(orders);
     } else {
       return res.status(403).json({ message: 'Unauthorized' });
@@ -52,25 +52,33 @@ router.put('/:id', authMiddleware, async (req, res) => {
       productionStarted,
       shipped,
       productionStartedDate,
-      estimatedProductionCompletionDate,
-      shippingDate
+      productionCompletionDate, // renamed
+      shippingDate,
+      shippingMode,
+      landingPort,
+      estimatedLandingDate
     } = req.body;
 
     order.productionStarted = productionStarted;
     order.shipped = shipped;
     order.productionStartedDate = productionStartedDate;
-    order.estimatedProductionCompletionDate = estimatedProductionCompletionDate;
+    order.productionCompletionDate = productionCompletionDate;
     order.shippingDate = shippingDate;
+
+    // new fields
+    order.shippingMode = shippingMode;
+    order.landingPort = landingPort;
+    order.estimatedLandingDate = estimatedLandingDate;
 
     console.log("Updated Order - ", order);
 
     await order.save();
     res.json({ message: 'Order updated', order });
-
   } catch (err) {
     console.error("Error updating order:", err);
     res.status(500).json({ message: 'Failed to update order' });
   }
 });
+
 
 export default router;
