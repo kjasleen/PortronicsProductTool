@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:4000'; // Replace with your actual backend URL
+const BASE_URL = 'https://portronicsproducttool-supplierdashboard.onrender.com'; // Replace with your actual backend URL
 
 const handleResponse = async (response) => {
   /*if (response.status === 401) {
