@@ -40,8 +40,8 @@ const AddUserModal = ({ onClose }) => {
           <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
           <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
           <select name="role" onChange={handleChange}>
-            <option value="supplier">Supplier</option>
-            <option value="company">Company</option>
+            <option value="supplier">Vendor</option>
+            <option value="company">Portronics User</option>
           </select>
           <div className="modal-actions">
             <button type="submit">Register</button>
