@@ -21,8 +21,20 @@ export default function CreateOrderModal({ onClose, onCreate }) {
   });
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+      fetchProducts();
+
+      const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+      window.addEventListener('keydown', handleEsc);
+
+      return () => {
+        window.removeEventListener('keydown', handleEsc);
+      };
+    }, [onClose]);
+
 
   const fetchProducts = async () => {
     try {

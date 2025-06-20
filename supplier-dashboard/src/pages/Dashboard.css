@@ -126,3 +126,26 @@
 .export-button:hover {
   background-color: #2a08ed;
 }
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin: 0 4px;
+  font-size: 16px;
+  color: #444;
+  transition: color 0.2s ease;
+}
+
+.icon-button:hover {
+  color: #007bff; /* Blue on hover */
+}
+
+.icon-button.delete:hover {
+  color: #dc3545; /* Red for delete icon */
+}
+
+.icon-button:focus {
+  outline: none;
+}

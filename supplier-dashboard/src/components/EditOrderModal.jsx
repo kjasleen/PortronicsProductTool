@@ -1,19 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './EditOrderModal.css';
 
 const EditOrderModal = ({ order, onClose, onSave }) => {
+
+  const formatDate = (iso) => iso ? iso.slice(0, 10) : '';
+
+  const [productionCompletionDate, setProductionCompletionDate] = useState(formatDate(order.productionCompletionDate));
+  const [productionStartedDate, setProductionStartedDate] = useState(formatDate(order.productionStartedDate));
+  const [shippingDate, setShippingDate] = useState(formatDate(order.shippingDate));
+  const [estimatedLandingDate, setEstimatedLandingDate] = useState(formatDate(order.estimatedLandingDate));
   const [productionStarted, setProductionStarted] = useState(order.productionStarted || 0);
   const [shipped, setShipped] = useState(order.shipped || 0);
-  const [productionStartedDate, setProductionStartedDate] = useState(order.productionStartedDate || '');
-  const [productionCompletionDate, setProductionCompletionDate] = useState(order.productionCompletionDate || '');
-  const [shippingDate, setShippingDate] = useState(order.shippingDate || '');
-
   const [shippingMode, setShippingMode] = useState(order.shippingMode || '');
   const [landingPort, setLandingPort] = useState(order.landingPort || '');
-  const [estimatedLandingDate, setEstimatedLandingDate] = useState(order.estimatedLandingDate || '');
 
   const totalOrdered = order.totalOrdered || 0;
   const isValid = productionStarted + shipped <= totalOrdered;
+
+  useEffect(() => {
+      const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+
+      window.addEventListener('keydown', handleEsc);
+      return () => window.removeEventListener('keydown', handleEsc);
+    }, [onClose]);
+
 
   const handleProductionChange = (value) => {
     const num = Number(value);

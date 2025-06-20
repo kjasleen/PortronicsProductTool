@@ -3,7 +3,7 @@ import HttpService from '../Utils/HttpService';
 import CreateOrderModal from '../components/CreateOrderModal';
 import EditOrderModal from '../components/EditOrderModal';
 import AddUserModal from '../components/AddUserModal';
-import { FiLogOut } from 'react-icons/fi';
+import { FiLogOut, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import './Dashboard.css';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -52,7 +52,14 @@ const Dashboard = () => {
     let filteredOrders = [...data];
 
     if (statusFilter) {
-      filteredOrders = filteredOrders.filter(o => o.status === statusFilter);
+      filteredOrders = filteredOrders.filter(o => {
+        if (statusFilter === 'Production Started') {
+          return o.productionStarted > 0;
+        } else if (statusFilter === 'Shipped') {
+          return o.shipped > 0;
+        }
+        return true;
+      });
     }
 
     if (supplierFilter) {
@@ -83,6 +90,16 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to delete this order?')) return;
+    try {
+      await HttpService.delete(`/api/orders/${orderId}`);
+      await fetchOrders();
+    } catch (error) {
+      console.error('Error deleting order:', error);
+    }
+  };
+
   const exportToExcel = () => {
     const visibleData = filtered.map(order => ({
       'Order ID': order._id,
@@ -110,7 +127,7 @@ const Dashboard = () => {
   };
 
   const exportToPDF = () => {
-    const doc = new jsPDF('l'); // landscape for wider tables
+    const doc = new jsPDF('l');
 
     const headers = [
       'Order ID', 'Product', 'Total Ordered', 'Production Started', 'Production Start Date',
@@ -190,7 +207,6 @@ const Dashboard = () => {
       <div className="controls">
         <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
           <option value="">All Statuses</option>
-          <option value="Pending">Pending</option>
           <option value="Production Started">Production Started</option>
           <option value="Shipped">Shipped</option>
         </select>
@@ -220,7 +236,7 @@ const Dashboard = () => {
         <table className="orders-table">
           <thead>
             <tr>
-              <th>Order ID</th>
+             
               <th>Product</th>
               <th>Total Ordered</th>
               <th>Production Started</th>
@@ -231,14 +247,14 @@ const Dashboard = () => {
               <th>Shipped</th>
               <th>Landing Port</th>
               <th>Landing Date</th>
-              <th>Supplier</th>
+              {userRole !== 'supplier' && <th>Supplier</th>}
               {userRole === 'supplier' && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {filtered.map(order => (
               <tr key={order._id}>
-                <td>{order._id}</td>
+              
                 <td>{order.productName}</td>
                 <td>{order.totalOrdered}</td>
                 <td>{order.productionStarted}</td>
@@ -249,10 +265,25 @@ const Dashboard = () => {
                 <td>{order.shipped}</td>
                 <td>{order.landingPort || '—'}</td>
                 <td>{order.estimatedLandingDate ? new Date(order.estimatedLandingDate).toLocaleDateString() : '—'}</td>
-                <td>{(userRole === 'company' || userRole === 'admin') ? (order.supplier?.username || 'N/A') : 'You'}</td>
+                {userRole !== 'supplier' && (
+                  <td>{order.supplier?.username || 'N/A'}</td>
+                )}
                 {userRole === 'supplier' && (
                   <td>
-                    <button className="edit-order-button" onClick={() => handleOpenEditModal(order)}>Edit</button>
+                    <button
+                      className="icon-button"
+                      title="Edit Order"
+                      onClick={() => handleOpenEditModal(order)}
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className="icon-button delete"
+                      title="Delete Order"
+                      onClick={() => handleDeleteOrder(order._id)}
+                    >
+                      <FiTrash2 />
+                    </button>
                   </td>
                 )}
               </tr>

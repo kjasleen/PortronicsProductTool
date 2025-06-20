@@ -1,3 +1,7 @@
+.modal-content h3 {
+  margin: 0 0 1rem 0; /* remove top margin, keep bottom spacing */
+  text-align: center;
+}
 /* Reuse from existing modal styles */
 .modal-overlay {
   position: fixed;
@@ -14,7 +18,7 @@
 
 .modal-content {
   background: #fff;
-  padding: 2rem;
+  padding: 1rem; /* reduced from 2rem */
   border-radius: 8px;
   width: 500px;
   max-width: 90%;
@@ -23,28 +27,21 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.modal-content h3 {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
 /* Table styling */
 .status-quantity-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;  /* reduced from 1rem */
+  margin-bottom: 0.5rem;  /* reduced from 1rem */
   table-layout: fixed;
 }
-
 .status-quantity-table th,
 .status-quantity-table td {
-  padding: 10px;
+  padding: 6px; /* reduced from 10px */
   text-align: center;
   border-bottom: 1px solid #ddd;
   vertical-align: middle;
 }
-
 .status-quantity-table th:nth-child(1),
 .status-quantity-table td:nth-child(1) {
   width: 40%;
@@ -92,8 +89,8 @@
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 0.5rem; /* reduced from 1rem */
+  margin-top: 1rem; /* reduced from 1.5rem */
 }
 
 .modal-actions button {
@@ -123,27 +120,27 @@
   background-color: #5a6268;
 }
 
-/* Date fields - for future flexibility */
 .date-fields {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem; /* reduced from 1rem */
+  margin-bottom: 0.5rem;
 }
 
 .date-fields label {
   display: flex;
   flex-direction: column;
   font-weight: bold;
+  margin-bottom: 0.2rem; /* optional spacing below label */
 }
 
 .date-fields select,
 .date-fields input[type="date"] {
-  margin-top: 5px;
-  padding: 8px;
+  margin-top: 4px;
+  padding: 6px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
 .date-fields input[type="date"] {
   margin-top: 5px;
   padding: 6px;

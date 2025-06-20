@@ -80,5 +80,23 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Delete an order
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (req.user.role !== 'supplier' || order.supplier.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized to delete this order' });
+    }
+
+    await Order.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Order deleted successfully' });
+  } catch (err) {
+    console.error("Error deleting order:", err);
+    res.status(500).json({ message: 'Failed to delete order' });
+  }
+});
+
 
 export default router;

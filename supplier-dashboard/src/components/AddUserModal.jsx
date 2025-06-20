@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HttpService from '../Utils/HttpService';
+import './AddUserModal.css';
 
 const AddUserModal = ({ onClose }) => {
   const [formData, setFormData] = useState({ name: '', password: '', role: 'supplier' });
 
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+  
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -22,7 +33,7 @@ const AddUserModal = ({ onClose }) => {
   };
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-overlay">
       <div className="modal-content">
         <h3>Register New User</h3>
         <form onSubmit={handleSubmit}>
@@ -34,7 +45,7 @@ const AddUserModal = ({ onClose }) => {
           </select>
           <div className="modal-actions">
             <button type="submit">Register</button>
-            <button type="button" onClick={onClose}>Cancel</button>
+            <button className="cancel-button" type="button" onClick={onClose}>Cancel</button>
           </div>
         </form>
       </div>

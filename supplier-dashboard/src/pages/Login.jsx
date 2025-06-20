@@ -6,33 +6,33 @@ import './Login.css';
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await HttpService.post('/api/login', form);
-    console.log("login response",res);
-    localStorage.setItem('supplierId', res.id);
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('userRole', res.role); // store user role
-    localStorage.setItem('username', form.username)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true); // Start loading
+    try {
+      const res = await HttpService.post('/api/login', form);
+      console.log("login response", res);
+      localStorage.setItem('supplierId', res.id);
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('userRole', res.role);
+      localStorage.setItem('username', form.username);
 
-    // Navigate based on role
-    //if (res.role === 'supplier') {
       navigate('/dashboard');
-    //}else {
-      setError('Unknown user role');
-    //}
-  } catch (err) {
-    console.error("handleSubmit", err);
-    setError('Invalid username or password');
-  }
-};
+    } catch (err) {
+      console.error("handleSubmit", err);
+      setError('Invalid username or password');
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
 
   return (
     <div className="login-container">
@@ -45,6 +45,7 @@ export default function Login() {
           value={form.username}
           onChange={handleChange}
           required
+          disabled={loading}
         />
         <input
           type="password"
@@ -53,9 +54,16 @@ export default function Login() {
           value={form.password}
           onChange={handleChange}
           required
+          disabled={loading}
         />
         {error && <p className="error-message">{error}</p>}
-        <button type="submit">Login</button>
+        {loading ? (
+          <button type="submit" disabled>
+            Logging in...
+          </button>
+        ) : (
+          <button type="submit">Login</button>
+        )}
       </form>
     </div>
   );
