@@ -1,6 +1,6 @@
 import React from 'react';
 import './Logo.css'; // Optional: for custom styling
-import logo from '../assets/logo.jpg'; // Adjust path if needed
+import logo from '../assets/logo1.jpg'; // Adjust path if needed
 
 export default function Logo() {
   return (
