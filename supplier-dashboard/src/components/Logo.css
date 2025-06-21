@@ -1,10 +1,12 @@
 .logo-container {
+  
   display: flex;
   justify-content: flex-start;
   padding: 1rem;
 }
 
 .company-logo {
-  max-height: 45px;
+  max-height: 43px;
+  max-width: 150px; /* Add this */
   object-fit: contain;
 }

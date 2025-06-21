@@ -4,7 +4,7 @@ import CreateOrderModal from '../components/CreateOrderModal';
 import EditOrderModal from '../components/EditOrderModal';
 import AddUserModal from '../components/AddUserModal';
 import { FiLogOut, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import './Dashboard.css';
+import './Dashboard.css?v=4';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
