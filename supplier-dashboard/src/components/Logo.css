@@ -1,0 +1,10 @@
+.logo-container {
+  display: flex;
+  justify-content: flex-start;
+  padding: 1rem;
+}
+
+.company-logo {
+  max-height: 45px;
+  object-fit: contain;
+}

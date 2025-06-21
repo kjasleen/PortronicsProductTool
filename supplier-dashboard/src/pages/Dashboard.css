@@ -9,6 +9,12 @@
   margin-bottom: 20px;
 }
 
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* adds space between logo and title */
+}
+
 .dashboard-heading {
   font-size: 24px;
   margin: 0;

@@ -8,6 +8,8 @@ import './Dashboard.css';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import Logo from '../components/Logo';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -28,6 +30,7 @@ const Dashboard = () => {
 
   const fetchOrders = async () => {
     try {
+      console.log("KKKKKKKKKKKKKKKKK")
       const data = await HttpService.get('/api/orders');
       setOrders(data);
       applyFilters(data);
@@ -39,9 +42,9 @@ const Dashboard = () => {
         setSuppliers(uniqueSuppliers);
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Error fetching orders HELLO:', error);
       if (error.status === 401 || error.message?.includes('jwt')) {
-        alert('Session expired. Please login again.');
+        toast.error('*********** Session expired. Please dont login again.');
         localStorage.clear();
         window.location.href = '/login';
       }
@@ -190,7 +193,10 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2 className="dashboard-heading">Order Dashboard / Report</h2>
+       <div className="logo-title">
+          <Logo />
+          <h2 className="dashboard-heading">Order Dashboard / Report</h2>
+        </div>
         <div className="right-actions">
           {userRole === 'admin' && (
             <button className="add-user-button" onClick={() => setShowAddUserModal(true)}>

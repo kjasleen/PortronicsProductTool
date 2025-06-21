@@ -1,13 +1,18 @@
-const BASE_URL = 'https://portronicsproducttool-supplierdashboard.onrender.com'; // Replace with your actual backend URL
-//const BASE_URL = 'http://localhost:4000';
+//const BASE_URL = 'https://portronicsproducttool-supplierdashboard.onrender.com'; // Replace with your actual backend URL
+const BASE_URL = 'http://localhost:4000';
+import { toast } from 'react-toastify';
+
 
 const handleResponse = async (response) => {
-  /*if (response.status === 401) {
+  console.log("Handle Response - ", response);
+  if (response.status === 403) {
     // Token expired or unauthorized — log out user
-    localStorage.removeItem('token');
+    console.log("403 Error");
+    toast.error('Session expired. Please *********** login again.');
+    localStorage.clear(); // Clear everything just to be safe
     window.location.href = '/login'; // Redirect to login
     throw new Error('Unauthorized. Redirecting to login.');
-  }*/
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -16,6 +21,7 @@ const handleResponse = async (response) => {
 
   return response.json();
 };
+
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -30,6 +36,7 @@ const HttpService = {
     const response = await fetch(`${BASE_URL}${url}`, {
       headers: getAuthHeaders(),
     });
+    console.log("Get Response", response);
     return handleResponse(response);
   },
 

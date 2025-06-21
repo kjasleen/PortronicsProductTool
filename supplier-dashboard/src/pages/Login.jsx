@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HttpService from '../Utils/HttpService';
 import './Login.css';
+import Logo from '../components/Logo';
+
 
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -36,6 +38,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
+      <Logo />
       <h2 className="login-heading">Login</h2>
       <form onSubmit={handleSubmit} className="login-form">
         <input

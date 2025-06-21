@@ -1,12 +1,19 @@
 .login-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
-  background-color: #f7f7f7;
-  padding-top: 80px;
+  align-items: center; /* keep this if you want form centered */
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 0; /* reduce padding so logo sits at top */
+  position: relative;
 }
+
+.logo-container {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
 
 .login-heading {
   font-size: 2.5rem;
