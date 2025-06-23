@@ -4,11 +4,10 @@ import HttpService from '../Utils/HttpService';
 import './Login.css';
 import Logo from '../components/Logo';
 
-
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,7 +17,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const res = await HttpService.post('/api/login', form);
       console.log("login response", res);
@@ -26,13 +25,12 @@ export default function Login() {
       localStorage.setItem('token', res.token);
       localStorage.setItem('userRole', res.role);
       localStorage.setItem('username', form.username);
-
       navigate('/dashboard');
     } catch (err) {
       console.error("handleSubmit", err);
       setError('Invalid username or password');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -60,13 +58,12 @@ export default function Login() {
           disabled={loading}
         />
         {error && <p className="error-message">{error}</p>}
-        {loading ? (
-          <button type="submit" disabled>
-            Logging in...
-          </button>
-        ) : (
-          <button type="submit">Login</button>
-        )}
+        <button type="submit" disabled={loading}>
+          {loading ? <div className="spinner" /> : 'Login'}
+        </button>
+        <div className="forgot-password-link">
+          <a href="/forgot-password">Forgot Password?</a>
+        </div>
       </form>
     </div>
   );

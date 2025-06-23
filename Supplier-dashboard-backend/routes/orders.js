@@ -1,12 +1,11 @@
 import express from 'express';
 import Order from '../models/Order.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { cookieAuthMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Get orders
-router.get('/', authMiddleware, async (req, res) => {
-  console.log("get Orders");
+router.get('/', cookieAuthMiddleware, async (req, res) => {
   try {
     if (req.user.role === 'supplier') {
       const orders = await Order.find({ supplier: req.user.id }).populate('supplier', 'username');
@@ -24,10 +23,14 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // Create new order
-router.post('/create', async (req, res) => {
-  console.log("Create Order API ", req.body);
+router.post('/create', cookieAuthMiddleware, async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
+    console.log('Decoded JWT user:', req.user);
+    const supplierId = req.user.id;
+    const newOrder = new Order({
+      ...req.body,
+      supplier: supplierId  // 🔥 Now set from the authenticated user
+    });
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
   } catch (err) {
@@ -37,7 +40,7 @@ router.post('/create', async (req, res) => {
 });
 
 // Update an order
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', cookieAuthMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -46,13 +49,11 @@ router.put('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized to update this order' });
     }
 
-    console.log("UPDATE REQUEST BODY:", req.body);
-
     const {
       productionStarted,
       shipped,
       productionStartedDate,
-      productionCompletionDate, // renamed
+      productionCompletionDate,
       shippingDate,
       shippingMode,
       landingPort,
@@ -64,13 +65,9 @@ router.put('/:id', authMiddleware, async (req, res) => {
     order.productionStartedDate = productionStartedDate;
     order.productionCompletionDate = productionCompletionDate;
     order.shippingDate = shippingDate;
-
-    // new fields
     order.shippingMode = shippingMode;
     order.landingPort = landingPort;
     order.estimatedLandingDate = estimatedLandingDate;
-
-    console.log("Updated Order - ", order);
 
     await order.save();
     res.json({ message: 'Order updated', order });
@@ -81,7 +78,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // Delete an order
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', cookieAuthMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -97,6 +94,5 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Failed to delete order' });
   }
 });
-
 
 export default router;

@@ -3,9 +3,13 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   username: { type: String, unique: true },
+  email: { type: String, unique: true, required: true },
   passwordHash: String,
-  role: { type: String, enum: ['supplier', 'company'], required: true },
-  supplierName: String, // Only for suppliers
+  role: { type: String, enum: ['admin','supplier', 'company'], required: true },
+  supplierName: String,
+  resetToken: String,
+  resetTokenExpiry: Date,
 });
+
 
 export default mongoose.model('User', userSchema);

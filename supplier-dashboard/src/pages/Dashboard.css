@@ -12,7 +12,7 @@
 .logo-title {
   display: flex;
   align-items: center;
-  gap: 12px; /* adds space between logo and title */
+  gap: 12px;
 }
 
 .dashboard-heading {
@@ -26,42 +26,10 @@
   gap: 12px;
 }
 
-.controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.add-order-button,
-.add-user-button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  cursor: pointer;
-}
-
-.add-order-button {
-  background-color: #007bff;
-}
-
-.add-order-button:hover {
-  background-color: #0056b3;
-}
-
-.add-user-button {
-  background-color: #17a2b8;
-}
-
-.add-user-button:hover {
-  background-color: #117a8b;
-}
-
 .user-info {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
   padding: 5px 10px;
   border-radius: 6px;
   cursor: pointer;
@@ -73,8 +41,62 @@
   background-color: #f0f0f0;
 }
 
-.logout-icon {
-  font-size: 1.2rem;
+.logout-text {
+  color: #d9534f;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.logout-text:hover {
+  text-decoration: underline;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Reusable button base style */
+.add-order-button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-order-button:hover {
+  background-color: #0056b3;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.export-button {
+  padding: 6px 12px;
+  background-color: #0c38b0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.export-button:hover {
+  background-color: #090b66;
 }
 
 .table-container {
@@ -83,7 +105,7 @@
 
 .orders-table {
   width: 100%;
-  min-width: 1200px; /* Ensures wide tables with new fields don't break */
+  min-width: 1200px;
   border-collapse: collapse;
 }
 
@@ -102,37 +124,6 @@
   background-color: #f2f2f2;
 }
 
-.edit-order-button {
-  padding: 4px 8px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.edit-order-button:hover {
-  background-color: #218838;
-}
-
-.export-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.export-button {
-  padding: 6px 12px;
-  background-color: #0c38b0;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.export-button:hover {
-  background-color: #2a08ed;
-}
-
 .icon-button {
   background: none;
   border: none;
@@ -145,11 +136,11 @@
 }
 
 .icon-button:hover {
-  color: #007bff; /* Blue on hover */
+  color: #007bff;
 }
 
 .icon-button.delete:hover {
-  color: #dc3545; /* Red for delete icon */
+  color: #dc3545;
 }
 
 .icon-button:focus {

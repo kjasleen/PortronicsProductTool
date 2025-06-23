@@ -3,7 +3,7 @@ import HttpService from '../Utils/HttpService';
 import CreateOrderModal from '../components/CreateOrderModal';
 import EditOrderModal from '../components/EditOrderModal';
 import AddUserModal from '../components/AddUserModal';
-import { FiLogOut, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import './Dashboard.css?v=4';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -21,33 +21,42 @@ const Dashboard = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [userRole, setUserRole] = useState(localStorage.getItem('userRole'));
-  const [username, setUsername] = useState(localStorage.getItem('username'));
+  const [userRole, setUserRole] = useState('');
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
+    fetchUserInfo();
     fetchOrders();
   }, []);
 
+  const fetchUserInfo = async () => {
+    try {
+      const res = await HttpService.get('/api/me');
+      setUserRole(res.role);
+      setUsername(res.username);
+    } catch (err) {
+      // toast.error('Session expired. Please login again.');
+      // window.location.href = '/login';
+    }
+  };
+
   const fetchOrders = async () => {
     try {
-      console.log("KKKKKKKKKKKKKKKKK")
-      const data = await HttpService.get('/api/orders');
-      setOrders(data);
-      applyFilters(data);
+      if (username) {
+        const data = await HttpService.get('/api/orders');
+        setOrders(data);
+        applyFilters(data);
 
-      if (data.length && data[0].supplier?.username) {
-        const uniqueSuppliers = [
-          ...new Map(data.map(o => [o.supplier._id, o.supplier.username])).entries()
-        ].map(([id, username]) => ({ id, username }));
-        setSuppliers(uniqueSuppliers);
+        if (data.length && data[0].supplier?.username) {
+          const uniqueSuppliers = [
+            ...new Map(data.map(o => [o.supplier._id, o.supplier.username])).entries()
+          ].map(([id, username]) => ({ id, username }));
+          setSuppliers(uniqueSuppliers);
+        }
       }
     } catch (error) {
-      console.error('Error fetching orders HELLO:', error);
-      if (error.status === 401 || error.message?.includes('jwt')) {
-        toast.error('*********** Session expired. Please dont login again.');
-        localStorage.clear();
-        window.location.href = '/login';
-      }
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders.');
     }
   };
 
@@ -69,10 +78,6 @@ const Dashboard = () => {
       filteredOrders = filteredOrders.filter(o => o.supplier._id === supplierFilter);
     }
 
-    if (userRole === 'supplier') {
-      filteredOrders = filteredOrders.filter(order => order.supplier?._id === localStorage.getItem('supplierId'));
-    }
-
     setFiltered(filteredOrders);
   };
 
@@ -82,9 +87,6 @@ const Dashboard = () => {
 
   const handleCreateOrder = async (newOrder) => {
     try {
-      const supplierId = localStorage.getItem('supplierId');
-      newOrder.supplier = supplierId;
-
       await HttpService.post('/api/orders/create', newOrder);
       setShowCreateModal(false);
       await fetchOrders();
@@ -104,7 +106,24 @@ const Dashboard = () => {
   };
 
   const exportToExcel = () => {
-    const visibleData = filtered.map(order => ({
+    const headers = {
+      'Order ID': '',
+      'Product': '',
+      'Total Ordered': '',
+      'Production Started': '',
+      'Production Start Date': '',
+      'Completion Date': '',
+      'Shipping Mode': '',
+      'Shipping Date': '',
+      'Shipped': '',
+      'Landing Port': '',
+      'Landing Date': '',
+      'With Packing': '',
+      'Master Carton Size': '',
+      ...(userRole !== 'supplier' && { 'Vendor': '' })
+    };
+
+    const visibleData = filtered.length ? filtered.map(order => ({
       'Order ID': order._id,
       'Product': order.productName,
       'Total Ordered': order.totalOrdered,
@@ -119,9 +138,9 @@ const Dashboard = () => {
       'With Packing': order.withPacking ? 'Yes' : 'No',
       'Master Carton Size': order.masterCartonSize || '',
       ...(userRole !== 'supplier' && {
-        'Supplier': order.supplier?.username || '',
+        'Vendor': order.supplier?.username || '',
       })
-    }));
+    })) : [headers];
 
     const worksheet = XLSX.utils.json_to_sheet(visibleData);
     const workbook = XLSX.utils.book_new();
@@ -133,38 +152,50 @@ const Dashboard = () => {
     const doc = new jsPDF('l');
 
     const headers = [
-      'Order ID', 'Product', 'Total Ordered', 'Production Started', 'Production Start Date',
-      'Completion Date', 'Shipping Mode', 'Shipping Date', 'Shipped',
-      'Landing Port', 'Landing Date', 'With Packing', 'Master Carton Size',
-      ...(userRole !== 'supplier' ? ['Supplier'] : [])
+      'ID', 'Product', 'Qty', 'Prod Start', 'Start Date',
+      'Complete Date', 'Ship Mode', 'Ship Date', 'Shipped',
+      'Port', 'Land Date', 'Packing', 'Carton',
+      ...(userRole !== 'supplier' ? ['Vendor'] : [])
     ];
 
-    const rows = filtered.map(order => [
-      order._id,
-      order.productName,
-      order.totalOrdered,
-      order.productionStarted,
-      order.productionStartedDate ? new Date(order.productionStartedDate).toLocaleDateString() : '',
-      order.productionCompletionDate ? new Date(order.productionCompletionDate).toLocaleDateString() : '',
-      order.shippingMode || '',
-      order.shippingDate ? new Date(order.shippingDate).toLocaleDateString() : '',
-      order.shipped,
-      order.landingPort || '',
-      order.estimatedLandingDate ? new Date(order.estimatedLandingDate).toLocaleDateString() : '',
-      order.withPacking ? 'Yes' : 'No',
-      order.masterCartonSize || '',
-      ...(userRole !== 'supplier' ? [order.supplier?.username || ''] : [])
-    ]);
+    const rows = filtered.map(order => {
+      const baseRow = [
+        order._id,
+        order.productName,
+        order.totalOrdered,
+        order.productionStarted,
+        order.productionStartedDate ? new Date(order.productionStartedDate).toLocaleDateString() : '',
+        order.productionCompletionDate ? new Date(order.productionCompletionDate).toLocaleDateString() : '',
+        order.shippingMode || '',
+        order.shippingDate ? new Date(order.shippingDate).toLocaleDateString() : '',
+        order.shipped,
+        order.landingPort || '',
+        order.estimatedLandingDate ? new Date(order.estimatedLandingDate).toLocaleDateString() : '',
+        order.withPacking ? 'Yes' : 'No',
+        order.masterCartonSize || ''
+      ];
+
+      if (userRole !== 'supplier') {
+        baseRow.push(order.supplier?.username || '');
+      }
+
+      return baseRow;
+    });
 
     autoTable(doc, {
       head: [headers],
       body: rows,
-      styles: { fontSize: 8, cellWidth: 'wrap' },
+      styles: {
+        fontSize: 7,
+        cellWidth: 'wrap',
+        overflow: 'linebreak'
+      },
       headStyles: { halign: 'center' },
       columnStyles: headers.reduce((acc, col, i) => {
         acc[i] = { cellWidth: 'auto' };
         return acc;
-      }, {})
+      }, {}),
+      useCss: true
     });
 
     doc.save('orders_export.pdf');
@@ -185,27 +216,29 @@ const Dashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    try {
+      await HttpService.post('/api/logout');
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      setUserRole('');
+      setUsername('');
+      window.location.href = '/login';
+    }
   };
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-       <div className="logo-title">
-       
+        <div className="logo-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Logo />
           <h2 className="dashboard-heading">Order Dashboard / Report</h2>
         </div>
         <div className="right-actions">
-          {userRole === 'admin' && (
-            <button className="add-user-button" onClick={() => setShowAddUserModal(true)}>
-              + Add User
-            </button>
-          )}
           <div className="user-info clickable" title="Logout" onClick={handleLogout}>
             <span className="username"><strong>{username}</strong></span>
-            <FiLogOut className="logout-icon" />
+            <span className="logout-text">Logout</span>
           </div>
         </div>
       </div>
@@ -219,18 +252,24 @@ const Dashboard = () => {
 
         {(userRole === 'company' || userRole === 'admin') && (
           <select onChange={(e) => setSupplierFilter(e.target.value)} value={supplierFilter}>
-            <option value="">All Suppliers</option>
+            <option value="">All Vendors</option>
             {suppliers.map(s => (
               <option key={s.id} value={s.id}>{s.username}</option>
             ))}
           </select>
         )}
 
-        {userRole === 'supplier' && (
-          <button className="add-order-button" onClick={() => setShowCreateModal(true)}>
-            + Create Order
-          </button>
-        )}
+        <div className="action-buttons">
+          {(userRole === 'admin' || userRole === 'company') && (
+            <>
+              <button className="export-button" onClick={() => setShowCreateModal(true)}>+ Create Order</button>
+              <button className="export-button" onClick={() => alert('TODO: Add Product Modal')}>+ Add Product</button>
+            </>
+          )}
+          {userRole === 'admin' && (
+            <button className="export-button" onClick={() => setShowAddUserModal(true)}>+ Add User</button>
+          )}
+        </div>
 
         <div className="export-buttons">
           <button onClick={exportToExcel} className="export-button">Export to Excel</button>
@@ -242,7 +281,6 @@ const Dashboard = () => {
         <table className="orders-table">
           <thead>
             <tr>
-             
               <th>Product</th>
               <th>Total Ordered</th>
               <th>Production Started</th>
@@ -260,7 +298,6 @@ const Dashboard = () => {
           <tbody>
             {filtered.map(order => (
               <tr key={order._id}>
-              
                 <td>{order.productName}</td>
                 <td>{order.totalOrdered}</td>
                 <td>{order.productionStarted}</td>
@@ -276,20 +313,8 @@ const Dashboard = () => {
                 )}
                 {userRole === 'supplier' && (
                   <td>
-                    <button
-                      className="icon-button"
-                      title="Edit Order"
-                      onClick={() => handleOpenEditModal(order)}
-                    >
-                      <FiEdit2 />
-                    </button>
-                    <button
-                      className="icon-button delete"
-                      title="Delete Order"
-                      onClick={() => handleDeleteOrder(order._id)}
-                    >
-                      <FiTrash2 />
-                    </button>
+                    <button className="icon-button" title="Edit Order" onClick={() => handleOpenEditModal(order)}><FiEdit2 /></button>
+                    <button className="icon-button delete" title="Delete Order" onClick={() => handleDeleteOrder(order._id)}><FiTrash2 /></button>
                   </td>
                 )}
               </tr>

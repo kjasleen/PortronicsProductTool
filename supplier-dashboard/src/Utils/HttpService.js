@@ -1,17 +1,20 @@
-const BASE_URL = 'https://portronicsproducttool-supplierdashboard.onrender.com'; // Replace with your actual backend URL
-//const BASE_URL = 'http://localhost:4000';
-import { toast } from 'react-toastify';
+// const BASE_URL = 'https://portronicsproducttool-supplierdashboard.onrender.com'; // Production
+const BASE_URL = 'http://localhost:4000'; // Development
 
+import { toast } from 'react-toastify';
 
 const handleResponse = async (response) => {
   console.log("Handle Response - ", response);
-  if (response.status === 403) {
-    // Token expired or unauthorized — log out user
-    console.log("403 Error");
-    toast.error('Session expired. Please *********** login again.');
-    localStorage.clear(); // Clear everything just to be safe
-    window.location.href = '/login'; // Redirect to login
-    throw new Error('Unauthorized. Redirecting to login.');
+
+  if (response.status === 403 || response.status === 401) {
+    // Unauthorized — redirect to login
+    console.log("Auth error (403/401)");
+    toast.error('Session expired. Please login again.');
+    setTimeout(() => {
+      console.log("Timeout over");
+      //window.location.href = '/login';
+    }, 2000); // 1.5 seconds delay
+    //throw new Error('Unauthorized. Redirecting to login.');
   }
 
   if (!response.ok) {
@@ -22,28 +25,22 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-};
-
 const HttpService = {
   get: async (url) => {
     const response = await fetch(`${BASE_URL}${url}`, {
-      headers: getAuthHeaders(),
+      method: 'GET',
+      credentials: 'include', // 💥 Send cookies
     });
-    console.log("Get Response", response);
     return handleResponse(response);
   },
 
   post: async (url, body) => {
     const response = await fetch(`${BASE_URL}${url}`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
     });
     return handleResponse(response);
@@ -52,7 +49,10 @@ const HttpService = {
   put: async (url, body) => {
     const response = await fetch(`${BASE_URL}${url}`, {
       method: 'PUT',
-      headers: getAuthHeaders(),
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
     });
     return handleResponse(response);
@@ -61,7 +61,7 @@ const HttpService = {
   delete: async (url) => {
     const response = await fetch(`${BASE_URL}${url}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(),
+      credentials: 'include',
     });
     return handleResponse(response);
   },
