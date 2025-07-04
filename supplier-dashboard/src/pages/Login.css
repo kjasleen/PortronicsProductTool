@@ -1,48 +1,88 @@
-.login-container {
+.login-page-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.logo-fixed-top-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.login-form-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center; /* keep this if you want form centered */
-  justify-content: center;
-  min-height: 90vh;
-  padding-top: 0; /* reduce padding so logo sits at top */
-  position: relative;
+  align-items: center;
 }
-
-.logo-container {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-}
-
 
 .login-heading {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  width: 350px;
+  width: 380px;
+  max-width: 90%;
   padding: 2rem;
   background: white;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 }
 
-.login-form input {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  font-size: 1rem;
+.input-wrapper,
+.password-wrapper {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto 12px auto;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding: 8px 10px;
+  padding-right: 40px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #333;
 }
 
 .login-form button {
-  padding: 0.75rem;
-  font-size: 1.1rem;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto 12px auto;
+  padding: 8px 10px;
+  font-size: 14px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
 }
 

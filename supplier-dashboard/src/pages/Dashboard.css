@@ -1,18 +1,19 @@
 .dashboard-container {
-  padding: 20px;
+  padding: 8px;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  
 }
 
 .logo-title {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: 5px;
 }
 
 .logo-title img,
@@ -20,16 +21,17 @@
   display: block;
   height: 28px; /* ✅ tweak this up/down to match heading nicely */
   width: auto;
+  margin-top: 1px;
+  margin-bottom: 50px;
 }
 
 .logo-title h2 {
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.8;
 }
 
-
 .dashboard-heading {
-  font-size: 24px;
+  font-size: 26px;
   margin: 0;
 }
 

@@ -1,18 +1,14 @@
 // const BASE_URL = 'https://portronicsproducttool-supplierdashboard.onrender.com'; // Production
-const BASE_URL = 'http://localhost:4000'; // Development
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;//'http://localhost:4000'; // Development
 
 import { toast } from 'react-toastify';
 
 const handleResponse = async (response) => {
-  console.log("Handle Response - ", response.status); 
-   console.log("Handle Response - ", response);
-
+ 
   if (response.status === 403 || response.status === 401) {
     // Unauthorized — redirect to login
-    console.log("Auth error (403/401)");
     toast.error('Invalid credentials/Session Expired. Please login again.');
     setTimeout(() => {
-      console.log("Timeout over");
       window.location.href = '/login';
     }, 2000); // 1.5 seconds delay
     //throw new Error('Unauthorized. Redirecting to login.');
