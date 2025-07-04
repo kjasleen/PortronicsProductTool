@@ -46,6 +46,9 @@ const EditOrderModal = ({ order, onClose, onSave }) => {
       setShippingDate(new Date().toISOString().slice(0, 10));
     } else if (num === 0) {
       setShippingDate('');
+      setShippingMode('');
+      setLandingPort('');
+      setEstimatedLandingDate('');
     }
   };
 
@@ -74,7 +77,8 @@ const EditOrderModal = ({ order, onClose, onSave }) => {
     productionStarted <= totalOrdered &&
     shipped <= productionStarted &&
     productionStarted >= 0 &&
-    shipped >= 0;
+    shipped >= 0 &&
+    shipped > 0; // ✅ additional condition to disable Save when shipped is 0
 
   return (
     <div className="modal-overlay">
@@ -169,7 +173,7 @@ const EditOrderModal = ({ order, onClose, onSave }) => {
           Shipped: <strong>{shipped} / {productionStarted}</strong>
         </p>
         <p className={isValid ? 'valid' : 'invalid'}>
-          {isValid ? 'Quantities look good ✅' : '⚠️ Please correct quantities'}
+          {isValid ? 'Quantities look good ✅' : '⚠️ Check quantities or mark shipped before saving'}
         </p>
 
         <div className="modal-actions">
