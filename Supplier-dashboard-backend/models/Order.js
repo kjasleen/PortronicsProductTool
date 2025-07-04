@@ -1,12 +1,20 @@
 import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
-  productName: String,
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+
+  productSnapshot: {
+    productName: String,
+    sku: String,
+    categoryName: String,
+    superCategoryName: String,
+  },
+
   totalOrdered: Number,
   productionStarted: Number,
   shipped: Number,
   productionStartedDate: Date,
-  productionCompletionDate: Date, // renamed from estimatedProductionCompletionDate
+  productionCompletionDate: Date,
   shippingDate: Date,
 
   shippingMode: {
@@ -22,7 +30,7 @@ const orderSchema = new mongoose.Schema({
   estimatedLandingDate: Date,
 
   withPacking: { type: Boolean, default: true },
-  masterCartonSize: { type: Number },
+  masterCartonSize: Number,
 
   supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });

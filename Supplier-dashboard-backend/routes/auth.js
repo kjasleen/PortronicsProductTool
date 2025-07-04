@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    if (!user) return res.status(401).json({ message: 'User Not Found !' });
+    if (!user) return res.status(404).json({ message: 'User Not Found !' });
 
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) return res.status(401).json({ message: 'Invalid password' });
@@ -71,6 +71,8 @@ router.post('/register', cookieAuthMiddleware, requireAdmin, async (req, res) =>
     if (!name || !password || !role) {
       return res.status(400).json({ message: 'Username, email and password are required' });
     }
+
+    console.log("NewUser Registration", role);
 
     const existingUser = await User.findOne({ name });
     if (existingUser) return res.status(409).json({ message: 'User already exists' });
@@ -150,6 +152,17 @@ router.post('/reset-password/:token', async (req, res) => {
   } catch (err) {
     console.error("Reset password error:", err);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// GET /api/users/vendors
+router.get('/vendors', cookieAuthMiddleware, async (req, res) => {
+  try {
+    const vendors = await User.find({ role: 'supplier' }).select('_id username email'); // Adjust 'supplier' if your role uses 'vendor'
+    res.json(vendors);
+  } catch (err) {
+    console.error('Error fetching vendors:', err);
+    res.status(500).json({ message: 'Failed to retrieve vendors' });
   }
 });
 

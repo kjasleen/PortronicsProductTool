@@ -2,198 +2,138 @@ import React, { useEffect, useState } from 'react';
 import HttpService from '../Utils/HttpService';
 import './CreateOrderModal.css';
 
-export default function CreateOrderModal({ onClose, onCreate }) {
+export default function CreateOrderModal({ onClose, onCreate, vendors }) {
   const [form, setForm] = useState({
     productId: '',
-    productName: '',
     totalOrdered: '',
     withPacking: false,
     masterCartonSize: '',
+    supplierId: '',
   });
 
-  const [allProducts, setAllProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [hierarchy, setHierarchy] = useState([]);
+  const [selectedSuperCategory, setSelectedSuperCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredCategories, setFilteredCategories] = useState([]);
-
-  const [filters, setFilters] = useState({
-    category: '',
-    superCategory: '',
-  });
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
-      fetchProducts();
+    fetchHierarchy();
+    const handleEsc = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
 
-      const handleEsc = (e) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      };
-      window.addEventListener('keydown', handleEsc);
-
-      return () => {
-        window.removeEventListener('keydown', handleEsc);
-      };
-    }, [onClose]);
-
-
-  const fetchProducts = async () => {
+  const fetchHierarchy = async () => {
     try {
-      const res = await HttpService.get('/api/products');
-      const normalized = res.map((p) => ({
-        _id: p._id,
-        productName: p["Product Name"],
-        sku: p.SKU,
-        category: p.Category,
-        superCategory: p["Super Category"],
-      }));
-
-      setAllProducts(normalized);
-      setFilteredProducts(normalized);
-
-      const categories = [...new Set(normalized.map((p) => p.category))];
-      setFilteredCategories(categories);
+      const res = await HttpService.get('/api/products/hierarchy');
+      setHierarchy(res);
     } catch (err) {
-      console.error('Failed to fetch products', err);
+      console.error('Failed to fetch hierarchy', err);
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    const updatedFilters = { ...filters, [name]: value };
-    setFilters(updatedFilters);
+  const handleSuperCategoryChange = (e) => {
+    const id = e.target.value;
+    setSelectedSuperCategory(id);
+    const sc = hierarchy.find((h) => h.superCategoryId === id);
+    setFilteredCategories(sc ? sc.categories : []);
+    setFilteredProducts([]);
+    setSelectedCategory('');
+    setForm((prev) => ({ ...prev, productId: '' }));
+  };
 
-    if (name === 'superCategory') {
-      const newCategories = [
-        ...new Set(
-          allProducts
-            .filter((p) => value === '' || p.superCategory === value)
-            .map((p) => p.category)
-        ),
-      ];
-      setFilteredCategories(newCategories);
-      updatedFilters.category = '';
-    }
-
-    const filtered = allProducts.filter((product) => {
-      const matchSC = updatedFilters.superCategory
-        ? product.superCategory === updatedFilters.superCategory
-        : true;
-      const matchCat = updatedFilters.category
-        ? product.category === updatedFilters.category
-        : true;
-      return matchSC && matchCat;
-    });
-
-    setFilteredProducts(filtered);
+  const handleCategoryChange = (e) => {
+    const id = e.target.value;
+    setSelectedCategory(id);
+    const cat = filteredCategories.find((c) => c.categoryId === id);
+    setFilteredProducts(cat ? cat.products : []);
+    setForm((prev) => ({ ...prev, productId: '' }));
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-
-    if (name === 'productId') {
-      const selectedProduct = allProducts.find((p) => p._id === value);
-      if (selectedProduct) {
-        setForm((prev) => ({ ...prev, productName: selectedProduct.productName }));
-      }
-    }
+    const newVal = type === 'checkbox' ? checked : value;
+    setForm((prev) => ({ ...prev, [name]: newVal }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.productId || !form.totalOrdered) {
-      alert('Please fill all required fields');
+    if (!form.productId || !form.totalOrdered || !form.supplierId) {
+      alert('Please fill all required fields.');
       return;
     }
     onCreate(form);
   };
-
-  const superCategories = [...new Set(allProducts.map((p) => p.superCategory))];
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>Create New Order</h2>
         <form onSubmit={handleSubmit} className="form-grid">
+
+          <div className="form-group">
+            <label>Vendor:</label>
+            <select name="supplierId" value={form.supplierId} onChange={handleChange} required>
+              <option value="">-- Select Vendor --</option>
+              {vendors.map((v) => (
+                <option key={v._id} value={v._id}>{v.username}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="form-group">
             <label>Super Category:</label>
-            <select name="superCategory" value={filters.superCategory} onChange={handleFilterChange}>
-              <option value="">All</option>
-              {superCategories.map((scat) => (
-                <option key={scat} value={scat}>{scat}</option>
+            <select value={selectedSuperCategory} onChange={handleSuperCategoryChange}>
+              <option value="">-- Select Super Category --</option>
+              {hierarchy.map((sc) => (
+                <option key={sc.superCategoryId} value={sc.superCategoryId}>{sc.superCategory}</option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
             <label>Category:</label>
-            <select name="category" value={filters.category} onChange={handleFilterChange}>
-              <option value="">All</option>
-              {filteredCategories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+            <select value={selectedCategory} onChange={handleCategoryChange} disabled={!selectedSuperCategory}>
+              <option value="">-- Select Category --</option>
+              {filteredCategories.map((c) => (
+                <option key={c.categoryId} value={c.categoryId}>{c.category}</option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label>Select Product:</label>
-            <select name="productId" value={form.productId} onChange={handleChange}>
+            <label>Product:</label>
+            <select name="productId" value={form.productId} onChange={handleChange} disabled={!selectedCategory}>
               <option value="">-- Select Product --</option>
               {filteredProducts.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.productName} ({p.sku})
-                </option>
+                <option key={p.productId} value={p.productId}>{p.productName} ({p.sku})</option>
               ))}
             </select>
           </div>
 
-          {/* Flex Row: Total Ordered, With Packing, Master Carton Size */}
           <div className="form-row">
             <div className="form-group">
               <label>Total Ordered:</label>
-              <input
-                type="number"
-                name="totalOrdered"
-                min="1"
-                value={form.totalOrdered}
-                onChange={handleChange}
-              />
+              <input type="number" name="totalOrdered" min="1" value={form.totalOrdered} onChange={handleChange} />
             </div>
 
-          <div className="form-group checkbox-align">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="withPacking"
-                checked={form.withPacking}
-                onChange={handleChange}
-              />
-              With Packing
-            </label>
-          </div>
-
-
+            <div className="form-group checkbox-align">
+              <label className="checkbox-label">
+                <input type="checkbox" name="withPacking" checked={form.withPacking} onChange={handleChange} />
+                With Packing
+              </label>
+            </div>
 
             <div className="form-group">
               <label>Master Carton Size:</label>
-              <input
-                type="number"
-                name="masterCartonSize"
-                min="1"
-                value={form.masterCartonSize}
-                onChange={handleChange}
-              />
+              <input type="number" name="masterCartonSize" min="1" value={form.masterCartonSize} onChange={handleChange} />
             </div>
           </div>
 
           <div className="button-row">
             <button type="submit">Create Order</button>
-            <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
-            </button>
+            <button type="button" onClick={onClose} className="cancel-button">Cancel</button>
           </div>
         </form>
       </div>

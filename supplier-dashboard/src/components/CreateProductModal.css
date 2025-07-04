@@ -8,12 +8,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* Prevent scroll on overlay itself */
+  overflow: hidden; /* ✅ prevent scroll on overlay itself */
 }
+
 
 .modal-content {
   background: #fff;
-  padding: 16px 24px; /* reduced padding */
+  padding: 20px 30px;
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
@@ -22,15 +23,16 @@
   overflow-y: auto;
 }
 
+
 .modal-content h2 {
   margin-top: 0;
-  margin-bottom: 16px; /* slightly tighter heading margin */
+  margin-bottom: 20px;
 }
 
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* reduce gap */
+  gap: 15px;
 }
 
 .form-group {
@@ -39,43 +41,30 @@
 }
 
 .form-group label {
-  margin-bottom: 4px; /* reduce label margin */
+  margin-bottom: 5px;
   font-weight: bold;
-  font-size: 14px; /* slightly smaller label text */
 }
 
 .form-group input,
 .form-group select {
-  padding: 6px 8px; /* slightly smaller inputs */
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 14px;
-}
-
-.form-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.form-row .form-group {
-  flex: 1;
 }
 
 .button-row {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 8px; /* reduced top margin */
+  margin-top: 10px;
 }
 
 button {
-  padding: 6px 12px; /* slightly smaller buttons */
+  padding: 8px 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
 }
 
 button[type="submit"] {

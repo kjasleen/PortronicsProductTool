@@ -4,29 +4,38 @@ import CreateOrderModal from '../components/CreateOrderModal';
 import EditOrderModal from '../components/EditOrderModal';
 import AddUserModal from '../components/AddUserModal';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import './Dashboard.css?v=4';
+import './Dashboard.css?v=5';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Logo from '../components/Logo';
 import { toast } from 'react-toastify';
+import CreateProductModal from '../components/CreateProductModal';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
-  const [supplierFilter, setSupplierFilter] = useState('');
-  const [suppliers, setSuppliers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [userRole, setUserRole] = useState('');
   const [username, setUsername] = useState('');
+  const [vendors, setVendors] = useState([]);
+  const [showCreateProductModal, setShowCreateProductModal] = useState(false);
+
+
+
 
   useEffect(() => {
-    fetchUserInfo();
-    fetchOrders();
+  const init = async () => {
+      await fetchUserInfo();
+      await fetchOrders();
+      await fetchVendors();
+    };
+    init();
   }, []);
 
   const fetchUserInfo = async () => {
@@ -34,56 +43,64 @@ const Dashboard = () => {
       const res = await HttpService.get('/api/me');
       setUserRole(res.role);
       setUsername(res.username);
-    } catch (err) {
-      // toast.error('Session expired. Please login again.');
-      // window.location.href = '/login';
-    }
+    } catch (err) {}
   };
 
   const fetchOrders = async () => {
     try {
-      if (username) {
-        const data = await HttpService.get('/api/orders');
-        setOrders(data);
-        applyFilters(data);
-
-        if (data.length && data[0].supplier?.username) {
-          const uniqueSuppliers = [
-            ...new Map(data.map(o => [o.supplier._id, o.supplier.username])).entries()
-          ].map(([id, username]) => ({ id, username }));
-          setSuppliers(uniqueSuppliers);
-        }
-      }
+      const data = await HttpService.get('/api/orders');
+      setOrders(data);
+     
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to fetch orders.');
     }
   };
 
-  const applyFilters = (data) => {
-    let filteredOrders = [...data];
-
-    if (statusFilter) {
-      filteredOrders = filteredOrders.filter(o => {
-        if (statusFilter === 'Production Started') {
-          return o.productionStarted > 0;
-        } else if (statusFilter === 'Shipped') {
-          return o.shipped > 0;
-        }
-        return true;
-      });
+  const fetchVendors = async () => {
+    try {
+      const res = await HttpService.get('/api/vendors');
+      setVendors(res);
+    } catch (err) {
+      console.error('Failed to fetch vendors', err);
     }
-
-    if (supplierFilter) {
-      filteredOrders = filteredOrders.filter(o => o.supplier._id === supplierFilter);
-    }
-
-    setFiltered(filteredOrders);
   };
 
-  useEffect(() => {
-    applyFilters(orders);
-  }, [statusFilter, supplierFilter, orders]);
+  const applyFilters = (data) => {
+  if (!data || !Array.isArray(data)) return;
+
+  let filteredOrders = [...data];
+
+  if (statusFilter) {
+    filteredOrders = filteredOrders.filter(o => {
+      if (statusFilter === 'Production Started') {
+        return o.productionStarted > 0;
+      } else if (statusFilter === 'Shipped') {
+        return o.shipped > 0;
+      }
+      return true;
+    });
+  }
+
+  if (searchTerm) {
+    const lowerSearch = searchTerm.toLowerCase();
+    filteredOrders = filteredOrders.filter(o => {
+      const isMatch = o.productSnapshot?.productName?.toLowerCase().includes(lowerSearch);
+      if (userRole === 'supplier') {
+        return isMatch && o.supplier?.username === username;
+      }
+      return isMatch;
+    });
+  }
+
+  setFiltered(filteredOrders);
+};
+
+
+useEffect(() => {
+  if (!userRole || !username) return; // Only run filters if user data ready
+  applyFilters(orders);
+}, [orders, statusFilter, searchTerm, userRole, username]);
 
   const handleCreateOrder = async (newOrder) => {
     try {
@@ -107,9 +124,8 @@ const Dashboard = () => {
 
   const exportToExcel = () => {
     const headers = {
-      'Order ID': '',
       'Product': '',
-      'Total Ordered': '',
+      'Qty Ordered': '',
       'Production Started': '',
       'Production Start Date': '',
       'Completion Date': '',
@@ -124,9 +140,8 @@ const Dashboard = () => {
     };
 
     const visibleData = filtered.length ? filtered.map(order => ({
-      'Order ID': order._id,
-      'Product': order.productName,
-      'Total Ordered': order.totalOrdered,
+      'Product': order.productSnapshot?.productName,
+      'Qty Ordered': order.totalOrdered,
       'Production Started': order.productionStarted,
       'Production Start Date': order.productionStartedDate ? new Date(order.productionStartedDate).toLocaleDateString() : '',
       'Completion Date': order.productionCompletionDate ? new Date(order.productionCompletionDate).toLocaleDateString() : '',
@@ -149,19 +164,18 @@ const Dashboard = () => {
   };
 
   const exportToPDF = () => {
-    const doc = new jsPDF('l');
+    const doc = new jsPDF('l', 'mm', 'a4');
 
     const headers = [
-      'ID', 'Product', 'Qty', 'Prod Start', 'Start Date',
-      'Complete Date', 'Ship Mode', 'Ship Date', 'Shipped',
-      'Port', 'Land Date', 'Packing', 'Carton',
+      'Product', 'Qty', 'Prod Start', 'Start Date',
+      'Completion Date', 'Shipping Mode', 'Shipping Date', 'Shipped',
+      'Port', 'Landing Date', 'Packing', 'Carton',
       ...(userRole !== 'supplier' ? ['Vendor'] : [])
     ];
 
     const rows = filtered.map(order => {
       const baseRow = [
-        order._id,
-        order.productName,
+        order.productSnapshot?.productName,
         order.totalOrdered,
         order.productionStarted,
         order.productionStartedDate ? new Date(order.productionStartedDate).toLocaleDateString() : '',
@@ -174,28 +188,41 @@ const Dashboard = () => {
         order.withPacking ? 'Yes' : 'No',
         order.masterCartonSize || ''
       ];
-
       if (userRole !== 'supplier') {
         baseRow.push(order.supplier?.username || '');
       }
-
       return baseRow;
     });
 
     autoTable(doc, {
       head: [headers],
       body: rows,
+      startY: 20,
       styles: {
-        fontSize: 7,
-        cellWidth: 'wrap',
-        overflow: 'linebreak'
+        fontSize: 8,
+        overflow: 'linebreak',
+        valign: 'middle',
       },
-      headStyles: { halign: 'center' },
-      columnStyles: headers.reduce((acc, col, i) => {
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
+        fontSize: 9,
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      columnStyles: headers.reduce((acc, _, i) => {
         acc[i] = { cellWidth: 'auto' };
         return acc;
       }, {}),
-      useCss: true
+      margin: { top: 20 },
+      didDrawPage: function (data) {
+        doc.setFontSize(16);
+        doc.setTextColor(40);
+        doc.text("Order Report", data.settings.margin.left, 10);
+      }
     });
 
     doc.save('orders_export.pdf');
@@ -233,6 +260,7 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <div className="logo-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Logo />
+          <div> </div>
           <h2 className="dashboard-heading">Order Dashboard / Report</h2>
         </div>
         <div className="right-actions">
@@ -250,24 +278,20 @@ const Dashboard = () => {
           <option value="Shipped">Shipped</option>
         </select>
 
-        {(userRole === 'company' || userRole === 'admin') && (
-          <select onChange={(e) => setSupplierFilter(e.target.value)} value={supplierFilter}>
-            <option value="">All Vendors</option>
-            {suppliers.map(s => (
-              <option key={s.id} value={s.id}>{s.username}</option>
-            ))}
-          </select>
-        )}
+        <input
+          type="text"
+          placeholder="Search by Product Name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
-        <div className="action-buttons">
-          {(userRole === 'admin' || userRole === 'company') && (
-            <>
-              <button className="export-button" onClick={() => setShowCreateModal(true)}>+ Create Order</button>
-              <button className="export-button" onClick={() => alert('TODO: Add Product Modal')}>+ Add Product</button>
-            </>
-          )}
+        <div className="export-buttons">
           {userRole === 'admin' && (
-            <button className="export-button" onClick={() => setShowAddUserModal(true)}>+ Add User</button>
+            <>
+              <button className="export-button"onClick={() => setShowCreateProductModal(true)}>+ Add Product</button>
+              <button className="export-button" onClick={() => setShowCreateModal(true)}>+ Create Order</button>
+              <button className="export-button" onClick={() => setShowAddUserModal(true)}>+ Add User</button>
+            </>
           )}
         </div>
 
@@ -282,7 +306,7 @@ const Dashboard = () => {
           <thead>
             <tr>
               <th>Product</th>
-              <th>Total Ordered</th>
+              <th>Qty Ordered</th>
               <th>Production Started</th>
               <th>Production Start Date</th>
               <th>Completion Date</th>
@@ -291,14 +315,18 @@ const Dashboard = () => {
               <th>Shipped</th>
               <th>Landing Port</th>
               <th>Landing Date</th>
-              {userRole !== 'supplier' && <th>Supplier</th>}
-              {userRole === 'supplier' && <th>Actions</th>}
+              {userRole === 'admin' && <th>Vendor</th>}
+              {(userRole === 'admin' || userRole === 'supplier') && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {filtered.map(order => (
               <tr key={order._id}>
-                <td>{order.productName}</td>
+                <td>
+                  {order.productSnapshot?.productName 
+                    ? `${order.productSnapshot.productName} (${order.productSnapshot.sku})`
+                    : order.productSnapshot?.sku || '—'}
+                </td>               
                 <td>{order.totalOrdered}</td>
                 <td>{order.productionStarted}</td>
                 <td>{order.productionStartedDate ? new Date(order.productionStartedDate).toLocaleDateString() : '—'}</td>
@@ -308,10 +336,10 @@ const Dashboard = () => {
                 <td>{order.shipped}</td>
                 <td>{order.landingPort || '—'}</td>
                 <td>{order.estimatedLandingDate ? new Date(order.estimatedLandingDate).toLocaleDateString() : '—'}</td>
-                {userRole !== 'supplier' && (
+                {userRole === 'admin' && (
                   <td>{order.supplier?.username || 'N/A'}</td>
                 )}
-                {userRole === 'supplier' && (
+                {(userRole === 'admin' || userRole === 'supplier') && (
                   <td>
                     <button className="icon-button" title="Edit Order" onClick={() => handleOpenEditModal(order)}><FiEdit2 /></button>
                     <button className="icon-button delete" title="Delete Order" onClick={() => handleDeleteOrder(order._id)}><FiTrash2 /></button>
@@ -324,7 +352,11 @@ const Dashboard = () => {
       </div>
 
       {showCreateModal && (
-        <CreateOrderModal onClose={() => setShowCreateModal(false)} onCreate={handleCreateOrder} />
+        <CreateOrderModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateOrder}
+          vendors={vendors}
+        />
       )}
       {showEditModal && selectedOrder && (
         <EditOrderModal
@@ -335,6 +367,15 @@ const Dashboard = () => {
       )}
       {showAddUserModal && (
         <AddUserModal onClose={() => setShowAddUserModal(false)} />
+      )}
+      {showCreateProductModal && (
+      <CreateProductModal
+        onClose={() => setShowCreateProductModal(false)}
+        onCreate={() => {
+          setShowCreateProductModal(false);
+          // You can optionally refresh products here if needed
+        }}
+       />
       )}
     </div>
   );

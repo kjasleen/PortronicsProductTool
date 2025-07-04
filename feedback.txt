@@ -1,0 +1,149 @@
+password confirm feature
+Logout
+Supplier remove
+Email id
+
+OTP 
+Create New Order - Portronics
+Create New Product
+
+QTy ordered instead of Total Orderd
+
+shipping info to be put by portronics
+order id
+
+
+All orders
+
+
+PO - By Por
+PI
+
+
+files\\accounts\\AccountName\\sites\\sitename\\
+
+
+
+
+I have to write a nodejs program for the following description.
+This app would pick up files in the specified folders and based on the folders search these files in a certain table in a postgre DB, If there is no reference in the DB, then remove these files from the folder.
+Now the specifics
+The base folder will be configurable
+The path after that would look like
+basefolder\\files\\accounts\\AccountName\\sites\\sitename\\
+ There are going to be multiple accounts with different AccountName in accounts folder
+There are going to be multiple sites with different sitename in sites folder
+We have to go thru the accounts one by one, and then in the account each site one by one
+
+Under each site there may be all or some of the following folders
+
+photographSets
+qa
+structuralReports
+	technicalDocuments
+	Under structuralReports there is technicalDocuments (Exception)
+audit
+ma
+msTowerSets
+leaseInformation
+planningInformation
+drawingSets
+ram
+
+We have to go through each of file/folder present in each of these folders, form a path with sub folders and filename and then look in the respective table and field I will specify later. If the path is not found in the table then write log 
+and remove that file from the disk.
+For the initial program  we will comment the deleting part , till the program stabilizes.
+
+
+photographSets - 
+Example path - files/accounts/Batch_2/sites/1004/photographSets/21/SITE PHOTOS FOR LEGON.PDF
+Table Name - sitephotographs
+Field - filepath
+
+qa
+Example path - files/accounts/Helios_Tanzania/sites/6039/qa/2/Delmec QA Acceptance Checklist 6039.xlsx
+Table Name - fileuploads
+Field - filepath
+
+structuralReports
+Example path - files/accounts/Helios_Ghana/sites/1003/structuralReports/13/1003-MACARTHY HILLS  REPORT.pdf
+Table Name - fileuploads
+Field - filepath
+
+One exception is technicaldocuments, its not directly under the sitename folder but inside the structuralReports folder
+
+technicaldocuments
+Example path - files/accounts/Helios_Tanzania/sites/5019/structuralReports/4777/technicalDocuments/5/Helios_5019_Londoni_19062014_CB.docx
+Table Name - fileuploads
+Field - filepath
+
+
+audit
+Example path - files/accounts/Helios_Tanzania/sites/TZ0319/audit/2/TZ0319-NYAKATONUNDU SITE CHECKLIST.pdf
+Table Name - fileuploads
+Field - filepath
+
+
+ma
+Example path - files/accounts/Batch_1_(Acquired)/sites/3205/ma/15/3205_Olorieni-New bolts counting.xlsx
+Table Name - fileuploads
+Field - filepath
+
+
+msTowerSets
+Example path - files/accounts/ESB__Telecoms/sites/001/msTowerSets/5/001_5_sdgadfa_AllSitesResults889.csv
+Table Name - mstowerfiles
+Field - filepath
+
+
+leaseInformation
+Example path - files/accounts/Batelco/sites/002/leaseInformation/18/Example of Licence Document.pdf
+Table Name - fileuploads
+Field - filepath
+
+
+
+planningInformation
+Example path - files/accounts/Batelco/sites/002/planningInformation/14/Planning Permission Example Document.pdf
+Table Name - fileuploads
+Field - filepath
+
+
+drawingSets
+Example path - files/accounts/4/sites/27/drawingSets/12/LEGON_DWG_Rev_01.pdf
+Table Name - sitedrawings
+Field - filepath
+
+
+ram
+Example path - files/accounts/ESB_Telecoms_Account/sites/183/ram/4/ESB Cashla_LOS Survey 10.08.2020.docx
+Table Name - fileuploads
+Field - filepath
+
+
+photographSets folder has sub folders representing different ids, these subfolders have files(the path of these files have to be cross checked with Database table sitephotographs field filepath) and a folder called cache, contents of cache folder have to be ignored.We can skip enumerating the cache folder.
+
+qa folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+audit folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+ma folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+msTowerSets folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table mstowerfiles field filepath)
+
+leaseInformation folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+drawingSets folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table sitedrawings field filepath)
+
+ram folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+planningInformation folder has sub folders representing different ids these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+The technicalDocuments folder is an exception, it resides inside structuralReports folder as follows
+
+structuralReports folder has sub folders representing different ids, these subfolders have files(the path of these files have to be cross checked with Database table fileuploads field filepath)and one sub folder
+called technicalDocuments, technicalDocuments has sub folders representing different ids,these subfolders have files (the path of these files have to be cross checked with Database table fileuploads field filepath)
+
+
+
+

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import HttpService from '../Utils/HttpService';
-import './ResetPassword.css'; // ⬅️ Add this file for the spinner
+import './ResetPassword.css';
 import Logo from '../components/Logo';
-
+import { Eye, EyeOff } from 'lucide-react'; // 👈 Use lucide icons
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -12,7 +12,10 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false); // 🌀 Loader state
+  const [loading, setLoading] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,17 +25,17 @@ export default function ResetPassword() {
       return setError("Passwords do not match");
     }
 
-    setLoading(true); // 🔃 Start loader
+    setLoading(true);
 
     try {
       await HttpService.post(`/api/reset-password/${token}`, { password });
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 3000); // Redirect after 3s
+      setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
       console.error(err);
       setError("Token may be expired or invalid");
     } finally {
-      setLoading(false); // 🛑 Stop loader
+      setLoading(false);
     }
   };
 
@@ -41,22 +44,36 @@ export default function ResetPassword() {
       <Logo />
       <h2>Reset Password</h2>
       <form onSubmit={handleSubmit} className="login-form">
-        <input
-          type="password"
-          placeholder="New Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-        />
-        <input
-          type="password"
-          placeholder="Confirm New Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          disabled={loading}
-        />
+
+        <div className="password-wrapper">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="New Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+          <span className="toggle-eye" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? <Eye /> : <EyeOff />}
+          </span>
+
+        </div>
+
+        <div className="password-wrapper">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            placeholder="Confirm New Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+          <span className="toggle-eye" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+            {showConfirmPassword ? <Eye /> : <EyeOff />}
+          </span>
+        </div>
+
         {error && <p className="error-message">{error}</p>}
 
         <button type="submit" disabled={loading}>
