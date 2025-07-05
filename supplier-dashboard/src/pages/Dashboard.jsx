@@ -257,12 +257,11 @@ useEffect(() => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div className="logo-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+     <div className="dashboard-header">
+        <div className="logo-fixed-top-left">
           <Logo />
-          <div> </div>
-          <h2 className="dashboard-heading">Order Dashboard / Report</h2>
         </div>
+        <h2 className="dashboard-heading">Order Dashboard / Report</h2>
         <div className="right-actions">
           <div className="user-info clickable" title="Logout" onClick={handleLogout}>
             <span className="username"><strong>{username}</strong></span>
@@ -270,6 +269,9 @@ useEffect(() => {
           </div>
         </div>
       </div>
+
+
+
 
       <div className="controls">
         <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>

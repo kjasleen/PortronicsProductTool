@@ -3,39 +3,43 @@
 }
 
 .dashboard-header {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  
+  flex-direction: column; /* stack logo and heading vertically */
+  margin-top: 20px;
 }
 
-.logo-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 5px;
+.logo-fixed-top-left {
+  position: absolute;
+  top: 10px;
+  left: 20px;
 }
 
-.logo-title img,
-.logo-title svg {
+.logo-title-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* left align logo + heading */
+}
+
+.logo-title-vertical img,
+.logo-title-vertical svg {
   display: block;
-  height: 28px; /* ✅ tweak this up/down to match heading nicely */
+  height: 28px;
   width: auto;
-  margin-top: 1px;
-  margin-bottom: 50px;
-}
-
-.logo-title h2 {
-  margin: 0;
-  line-height: 1.8;
 }
 
 .dashboard-heading {
-  font-size: 26px;
-  margin: 0;
+  margin-top: 80px; /* push heading below the logo vertically */
+  font-size: 28px;
+  text-align: center;
 }
 
 .right-actions {
+  position: absolute;
+  top: 10px;
+  right: 20px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -74,7 +78,6 @@
   flex-wrap: wrap;
 }
 
-/* Reusable button base style */
 .add-order-button {
   padding: 8px 12px;
   background-color: #007bff;

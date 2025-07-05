@@ -1,11 +1,14 @@
 .logo-container {
   display: flex;
   justify-content: flex-start;
-  padding: 2rem;
+  padding: 0rem;
 }
 
 .company-logo {
-  max-height: 38px;
-  max-width: 150px; /* Add this */
+  max-height: 42px;
+  max-width: 150px;
   object-fit: contain;
+  display: block; /* prevents extra bottom whitespace inline images often add */
+  margin: 0;
+  padding: 0;
 }

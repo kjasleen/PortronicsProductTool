@@ -40,7 +40,7 @@ const AddUserModal = ({ onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Register New User</h3>
+        <h3>Add New User</h3>
         <form onSubmit={handleSubmit}>
           <div className="input-wrapper">
             <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
@@ -84,7 +84,7 @@ const AddUserModal = ({ onClose }) => {
           </div>
 
           <div className="modal-actions">
-            <button type="submit">Register</button>
+            <button type="submit">Add</button>
             <button className="cancel-button" type="button" onClick={onClose}>Cancel</button>
           </div>
         </form>
