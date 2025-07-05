@@ -1,67 +1,56 @@
-.login-page-container {
+.page-container {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  padding: 0; /* no extra padding at top */
+  height: auto;
 }
 
-.logo-fixed-top-left {
+.logo-top-left {
   position: absolute;
-  top: 20px;
+  top: 0; /* or 1px if you want absolutely minimal gap */
   left: 20px;
 }
 
-.login-form-wrapper {
+.auth-container {
+  margin-top: 30px; /* reduce further to pull content higher */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.login-heading {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+.auth-container h2 {
+  margin-bottom: 12px;
+  font-size: 2rem; /* restore larger heading */
 }
 
-.login-form {
+.auth-form {
   display: flex;
   flex-direction: column;
-  width: 380px;
-  max-width: 90%;
-  padding: 2rem;
+  width: 320px;
+  padding: 1.5rem;
   background: white;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
 }
 
 .input-wrapper,
 .password-wrapper {
   width: 100%;
-  max-width: 350px;
-  margin: 0 auto 12px auto;
+  margin-bottom: 12px;
 }
 
-.input-wrapper input {
+.input-wrapper input,
+.password-wrapper input {
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 4px;
+  padding: 10px;
+  padding-right: 40px;
+  border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 0.95rem;
   box-sizing: border-box;
-  font-size: 14px;
 }
 
 .password-wrapper {
   position: relative;
-}
-
-.password-wrapper input {
-  width: 100%;
-  padding: 8px 10px;
-  padding-right: 40px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-size: 14px;
 }
 
 .toggle-eye {
@@ -71,28 +60,13 @@
   transform: translateY(-50%);
   cursor: pointer;
   color: #333;
+  font-size: 18px;
 }
 
-.login-form button {
-  width: 100%;
-  max-width: 350px;
-  margin: 0 auto 12px auto;
-  padding: 8px 10px;
-  font-size: 14px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.login-form button:hover {
-  background-color: #0056b3;
-}
 
 .error-message {
   color: red;
-  margin-bottom: 1rem;
+  margin-top: 10px;
   text-align: center;
 }
 
@@ -112,8 +86,8 @@
 }
 
 .spinner {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 3px solid rgba(255, 255, 255, 0.4);
   border-top: 3px solid #ffffff;
   border-radius: 50%;
@@ -130,4 +104,21 @@
 button[disabled] {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.auth-form button {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto 12px auto;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #0c38b0 !important; /* 💥 Your desired color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.auth-form button:hover {
+  background-color: #090b66; /* optional: slightly darker on hover */
 }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import HttpService from '../Utils/HttpService';
 import './ResetPassword.css';
 import Logo from '../components/Logo';
-import { Eye, EyeOff } from 'lucide-react'; // 👈 Use lucide icons
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -40,48 +40,50 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="login-container">
-      <Logo />
-      <h2>Reset Password</h2>
-      <form onSubmit={handleSubmit} className="login-form">
+    <div className="page-container">
+      <div className="logo-top-left">
+        <Logo />
+      </div>
+      <div className="auth-container">
+        <h2>Reset Password</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="New Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <span className="toggle-eye" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <Eye /> : <EyeOff />}
+            </span>
+          </div>
 
-        <div className="password-wrapper">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="New Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
-          <span className="toggle-eye" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <Eye /> : <EyeOff />}
-          </span>
+          <div className="password-wrapper">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <span className="toggle-eye" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+              {showConfirmPassword ? <Eye /> : <EyeOff />}
+            </span>
+          </div>
 
-        </div>
+          {error && <p className="error-message">{error}</p>}
 
-        <div className="password-wrapper">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="Confirm New Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
-          <span className="toggle-eye" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-            {showConfirmPassword ? <Eye /> : <EyeOff />}
-          </span>
-        </div>
+          <button type="submit" disabled={loading}>
+            {loading ? <div className="spinner" /> : 'Reset Password'}
+          </button>
 
-        {error && <p className="error-message">{error}</p>}
-
-        <button type="submit" disabled={loading}>
-          {loading ? <div className="spinner" /> : 'Reset Password'}
-        </button>
-
-        {success && <p className="success-message">Password updated! Redirecting to login...</p>}
-      </form>
+          {success && <p className="success-message">Password updated! Redirecting to login...</p>}
+        </form>
+      </div>
     </div>
   );
 }

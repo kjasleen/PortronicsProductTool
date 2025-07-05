@@ -36,13 +36,13 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page-container">
-      <div className="logo-fixed-top-left">
+    <div className="page-container">
+      <div className="logo-top-left">
         <Logo />
       </div>
-      <div className="login-form-wrapper">
-        <h2 className="login-heading">Login</h2>
-        <form onSubmit={handleSubmit} className="login-form">
+      <div className="auth-container">
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="input-wrapper">
             <input
               type="text"
